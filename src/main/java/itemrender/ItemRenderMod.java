@@ -14,6 +14,7 @@ import itemrender.client.export.ExportUtils;
 import itemrender.client.export.ItemList;
 import itemrender.client.keybind.*;
 import net.minecraft.client.resources.I18n;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -33,7 +34,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mod(
-        modid = ItemRenderMod.MODID, name = "Item Render", version = "@VERSION@", guiFactory = "itemrender.ItemRenderGuiFactory", acceptedMinecraftVersions = "[1.12, 1.12.10]"
+        modid = ItemRenderMod.MODID,
+        name = "Item Render Dark",
+        version = "@VERSION@",
+        guiFactory = "itemrender.ItemRenderGuiFactory",
+        acceptedMinecraftVersions = "[1.12, 1.12.10]",
+        clientSideOnly = true
 )
 public class ItemRenderMod
 {
@@ -58,9 +64,7 @@ public class ItemRenderMod
     public static int mainEntitySize = DEFAULT_MAIN_ENTITY_SIZE;
     public static int gridEntitySize = DEFAULT_GRID_ENTITY_SIZE;
     public static int playerSize = DEFAULT_PLAYER_SIZE;
-    public static boolean exportVanillaItems = false;
     public static boolean debugMode = false;
-    public static List<String> blacklist = new ArrayList<String>();
     public Logger log;
 
     @SideOnly(Side.CLIENT)
@@ -73,9 +77,7 @@ public class ItemRenderMod
         mainEntitySize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderEntityMain", DEFAULT_MAIN_ENTITY_SIZE, I18n.format("itemrender.cfg.mainentity")).getInt();
         gridEntitySize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderEntityGrid", DEFAULT_GRID_ENTITY_SIZE, I18n.format("itemrender.cfg.gridentity")).getInt();
         playerSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderPlayer", DEFAULT_PLAYER_SIZE, I18n.format("itemrender.cfg.player")).getInt();
-        exportVanillaItems = cfg.get(Configuration.CATEGORY_GENERAL, "ExportVanillaItems", false, I18n.format("itemrender.cfg.vanilla")).getBoolean();
         debugMode = cfg.get(Configuration.CATEGORY_GENERAL, "DebugMode", false, I18n.format("itemrender.cfg.debug")).getBoolean();
-        blacklist = Arrays.asList(cfg.get(Configuration.CATEGORY_GENERAL, "BlackList", new String[] {}, I18n.format("itemrender.cfg.blacklist")).getStringList());
         if (cfg.hasChanged())
             cfg.save();
     }
@@ -97,22 +99,11 @@ public class ItemRenderMod
     }
 
     @Mod.EventHandler
-    public void serverStarting(FMLServerStartingEvent event)
-    {
-        event.registerServerCommand(new CommandItemRender());
-    }
-
-    @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        if (event.getSide().isServer())
-        {
-            log.error(I18n.format("itemrender.msg.clientonly"));
-            return;
-        }
-
         MinecraftForge.EVENT_BUS.register(instance);
         MinecraftForge.EVENT_BUS.register(renderTickHandler);
+        ClientCommandHandler.instance.registerCommand(new CommandItemRender());
 
         if (gl32_enabled)
         {

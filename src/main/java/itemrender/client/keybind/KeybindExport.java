@@ -11,9 +11,12 @@
 package itemrender.client.keybind;
 
 import itemrender.client.export.ExportUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -46,11 +49,12 @@ public class KeybindExport
         {
             try
             {
-                ExportUtils.INSTANCE.exportMods();
+                ExportUtils.INSTANCE.exportMods(".*");
             }
             catch (IOException e)
             {
                 e.printStackTrace();
+                Minecraft.getMinecraft().player.sendMessage(new TextComponentString(TextFormatting.RED + e.toString()));
             }
         }
     }

@@ -97,7 +97,7 @@ public class ExportUtils
         return registryName == null ? "unnamed" : registryName.getNamespace();
     }
 
-    public void exportMods() throws IOException
+    public void exportMods(String pattern) throws IOException
     {
         long ms = Minecraft.getSystemTime();
         Minecraft minecraft = FMLClientHandler.instance().getClient();
@@ -110,17 +110,12 @@ public class ExportUtils
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         ItemData itemData;
         MobData mobData;
-        String identifier;
 
         for (ItemStack itemStack : ItemList.items)
         {
             if (itemStack == null)
                 continue;
-            if (getItemOwner(itemStack).equals("minecraft") && !ItemRenderMod.exportVanillaItems)
-                continue;
-
-            identifier = itemStack.getTranslationKey() + "@" + itemStack.getMetadata();
-            if (ItemRenderMod.blacklist.contains(identifier))
+            if (!itemStack.getItem().getRegistryName().toString().matches(pattern))
                 continue;
 
             itemData = new ItemData(itemStack);
@@ -128,17 +123,17 @@ public class ExportUtils
             if (!modList.contains(getItemOwner(itemStack)))
                 modList.add(getItemOwner(itemStack));
         }
-        for (EntityEntry Entity : ForgeRegistries.ENTITIES)
+        for (EntityEntry entity : ForgeRegistries.ENTITIES)
         {
-            if (Entity == null)
+            if (entity == null)
                 continue;
-            if (getEntityOwner(Entity).equals("minecraft") && !ItemRenderMod.exportVanillaItems)
+            if (!entity.getRegistryName().toString().matches(pattern))
                 continue;
 
-            mobData = new MobData(Entity);
+            mobData = new MobData(entity);
             mobDataList.add(mobData);
-            if (!modList.contains(getEntityOwner(Entity)))
-                modList.add(getEntityOwner(Entity));
+            if (!modList.contains(getEntityOwner(entity)))
+                modList.add(getEntityOwner(entity));
         }
 
         boolean reloadstate = ForgeModContainer.selectiveResourceReloadEnabled;
@@ -152,14 +147,14 @@ public class ExportUtils
         {
             if (ItemRenderMod.debugMode)
                 ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
-            data.setName(this.getLocalizedName(data.getItemStack()));
+            data.setName(data.getItemStack().getDisplayName());
             data.setCreativeName(getCreativeTabName(data));
         }
         for (MobData data : mobDataList)
         {
             if (ItemRenderMod.debugMode)
                 ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getMob().getRegistryName()));
-            data.setName(new TextComponentTranslation("entity." + data.getMob().getName() + ".name", new Object[0]).getFormattedText());
+            data.setName(I18n.format("entity." + data.getMob().getName() + ".name"));
         }
 
         minecraft.fontRenderer.setUnicodeFlag(false);

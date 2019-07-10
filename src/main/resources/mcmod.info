@@ -1,13 +1,13 @@
 [
 {
   "modid": "itemrender",
-  "name": "Item Render",
-  "description": "Item Render 1.12.x Edition",
+  "name": "Item Render Dark",
+  "description": "Item Render Dark",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "https://github.com/MascusJeoraly/Item-Render",
+  "url": "https://github.com/Snownee/Item-Render-Dark",
   "updateUrl": "",
-  "authorList": ["Kobata", "Meow J"],
+  "authorList": ["Kobata", "Meow J", "Snownee"],
   "credits": "Mascus Jeoraly",
   "logoFile": "",
   "screenshots": [],

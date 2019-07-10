@@ -9,9 +9,11 @@
  */
 package itemrender;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import itemrender.client.export.ExportUtils;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -19,8 +21,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.IClientCommand;
 
-public class CommandItemRender extends CommandBase
+public class CommandItemRender extends CommandBase implements IClientCommand
 {
 
     @Override
@@ -32,7 +35,7 @@ public class CommandItemRender extends CommandBase
     @Override
     public String getUsage(ICommandSender sender)
     {
-        return "/itemrender scale [value]";
+        return "/itemrender scale|export ...";
     }
 
     @Override
@@ -40,9 +43,7 @@ public class CommandItemRender extends CommandBase
     {
         if (args.length == 0)
         {
-            sender.sendMessage(new TextComponentString(TextFormatting.RED + "/itemrender scale [value]"));
-            sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Execute this command to control entity/item rendering scale."));
-            sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Scale Range: (0.0, 2.0]. Default: 1.0. Current: " + ItemRenderMod.renderScale));
+            throw new CommandException("/itemrender scale|export ...");
         }
         else if (args[0].equalsIgnoreCase("scale"))
         {
@@ -61,17 +62,53 @@ public class CommandItemRender extends CommandBase
             }
             else
             {
-                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Current Scale: " + ItemRenderMod.renderScale));
-                sender.sendMessage(new TextComponentString(TextFormatting.RED + "Execute /itemrender scale [value] to control entity/item rendering " + TextFormatting.RED + "scale."));
+                sender.sendMessage(new TextComponentString(TextFormatting.RED + "/itemrender scale [value]"));
+                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Execute this command to control entity/item rendering scale."));
+                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Scale Range: (0.0, 2.0]. Default: 1.0. Current: " + ItemRenderMod.renderScale));
+            }
+        }
+        else if (args[0].equalsIgnoreCase("export"))
+        {
+            String pattern;
+            if (args.length == 1)
+            {
+                pattern = ".*";
+            }
+            else if (args.length == 2)
+            {
+                pattern = args[1];
+            }
+            else
+            {
+                throw new CommandException("/itemrender export [regex pattern]");
+            }
+            try
+            {
+                ExportUtils.INSTANCE.exportMods(pattern);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                throw new CommandException(e.toString());
             }
         }
         else
-            throw new CommandException("/itemrender scale [value]", 0);
+            throw new CommandException("/itemrender scale|export ...");
     }
 
     @Override
     public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos)
     {
+        if (args.length == 1)
+        {
+            return getListOfStringsMatchingLastWord(args, "scale", "export");
+        }
         return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public boolean allowUsageWithoutPrefix(ICommandSender sender, String message)
+    {
+        return false;
     }
 }
