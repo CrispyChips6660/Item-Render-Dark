@@ -88,8 +88,7 @@ public class ExportUtils
 
     private String getItemOwner(ItemStack itemStack)
     {
-        ResourceLocation registryName = itemStack.getItem().getRegistryName();
-        return registryName == null ? "unnamed" : registryName.getNamespace();
+        return itemStack.getItem().getCreatorModId(itemStack);
     }
 
     private String getEntityOwner(EntityEntry Entitymob)
