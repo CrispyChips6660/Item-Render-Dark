@@ -9,7 +9,6 @@
  */
 package itemrender.client.keybind;
 
-
 import itemrender.client.rendering.FBOHelper;
 import itemrender.client.rendering.Renderer;
 import net.minecraft.client.Minecraft;
@@ -25,22 +24,26 @@ import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
 
-public class KeybindRenderCurrentPlayer {
+public class KeybindRenderCurrentPlayer
+{
 
     private final KeyBinding key;
     private FBOHelper fbo;
 
-    public KeybindRenderCurrentPlayer(int textureSize) {
+    public KeybindRenderCurrentPlayer(int textureSize)
+    {
         fbo = new FBOHelper(textureSize);
         key = new KeyBinding(I18n.format("itemrender.key.currentplayer"), Keyboard.KEY_P, "Item Render");
         ClientRegistry.registerKeyBinding(key);
     }
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) {
+    public void onKeyInput(InputEvent.KeyInputEvent event)
+    {
         if (FMLClientHandler.instance().isGUIOpen(GuiChat.class))
             return;
-        if (key.isPressed()) {
+        if (key.isPressed())
+        {
             Minecraft minecraft = FMLClientHandler.instance().getClient();
             Entity player = ReflectionHelper.getPrivateValue(Minecraft.class, minecraft, "field_175622_Z", "renderViewEntity");
             if (player != null)

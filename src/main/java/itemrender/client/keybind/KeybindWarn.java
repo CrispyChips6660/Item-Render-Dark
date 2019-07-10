@@ -21,8 +21,10 @@ import org.lwjgl.input.Keyboard;
  *
  * @author Meow J
  */
-public class KeybindWarn {
-    public KeybindWarn() {
+public class KeybindWarn
+{
+    public KeybindWarn()
+    {
         ClientRegistry.registerKeyBinding(new KeyBinding(I18n.format("itemrender.key.error"), Keyboard.KEY_NONE, "Item Render"));
     }
 }

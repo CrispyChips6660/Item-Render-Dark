@@ -10,7 +10,6 @@
 
 package itemrender;
 
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.IModGuiFactory;
@@ -24,35 +23,40 @@ import java.util.Set;
  *
  * @author Meow J
  */
-public class ItemRenderGuiFactory implements IModGuiFactory {
+public class ItemRenderGuiFactory implements IModGuiFactory
+{
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void initialize(Minecraft minecraftInstance) {
+    public void initialize(Minecraft minecraftInstance)
+    {
     }
 
     @Override
-    public boolean hasConfigGui() {
+    public boolean hasConfigGui()
+    {
         return true;
     }
 
     @Override
-    public GuiScreen createConfigGui(GuiScreen parentScreen) {
+    public GuiScreen createConfigGui(GuiScreen parentScreen)
+    {
         return new ItemRenderConfigGUI(parentScreen);
     }
 
-//    @Override
-//    public Class<? extends GuiScreen> mainConfigGuiClass() {
-//        return ItemRenderConfigGUI.class;
-//    }
+    //    @Override
+    //    public Class<? extends GuiScreen> mainConfigGuiClass() {
+    //        return ItemRenderConfigGUI.class;
+    //    }
 
     @Override
-    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories() {
+    public Set<RuntimeOptionCategoryElement> runtimeGuiCategories()
+    {
         return null;
     }
 
-//    @Override
-//    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
-//        return null;
-//    }
+    //    @Override
+    //    public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+    //        return null;
+    //    }
 }

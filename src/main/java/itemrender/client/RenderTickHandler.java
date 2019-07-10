@@ -9,24 +9,27 @@
  */
 package itemrender.client;
 
-
 import itemrender.client.keybind.KeybindRenderInventoryBlock;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
 
-public class RenderTickHandler {
+public class RenderTickHandler
+{
     public static boolean renderPreview = false;
     public static KeybindRenderInventoryBlock keybindToRender;
 
-    public RenderTickHandler() {
+    public RenderTickHandler()
+    {
     }
 
     @SubscribeEvent
-    public void tick(TickEvent.RenderTickEvent event) {
+    public void tick(TickEvent.RenderTickEvent event)
+    {
         if (event.phase == TickEvent.Phase.END)
-            if (keybindToRender != null && renderPreview) {
+            if (keybindToRender != null && renderPreview)
+            {
                 int originalTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 
                 // Bind framebuffer texture

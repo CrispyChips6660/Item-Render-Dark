@@ -31,37 +31,48 @@ import java.util.List;
  *
  * @author Chickenbones
  */
-public class ItemList {
+public class ItemList
+{
     /**
      * Fields are replaced atomically and contents never modified.
      */
     static volatile List<ItemStack> items = new ArrayList<ItemStack>();
 
-    private static void damageSearch(Item item, List<ItemStack> permutations) {
+    private static void damageSearch(Item item, List<ItemStack> permutations)
+    {
         HashSet<String> damageIconSet = new HashSet<String>();
         for (int damage = 0; damage < 16; damage++)
-            try {
+            try
+            {
                 ItemStack stack = new ItemStack(item, 1, damage);
                 IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(stack);
                 String name = concatenatedDisplayName(stack);
                 String s = name + "@" + (model == null ? 0 : model.hashCode());
-                if (!damageIconSet.contains(s)) {
+                if (!damageIconSet.contains(s))
+                {
                     damageIconSet.add(s);
                     permutations.add(stack);
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
     }
 
-    private static String concatenatedDisplayName(ItemStack itemstack) {
+    private static String concatenatedDisplayName(ItemStack itemstack)
+    {
         List<String> list = itemDisplayNameMultiline(itemstack);
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (String name : list) {
-            if (first) {
+        for (String name : list)
+        {
+            if (first)
+            {
                 first = false;
-            } else {
+            }
+            else
+            {
                 sb.append("#");
             }
             sb.append(name);
@@ -70,11 +81,15 @@ public class ItemList {
     }
 
     @SuppressWarnings("unchecked")
-    private static List<String> itemDisplayNameMultiline(ItemStack itemstack) {
+    private static List<String> itemDisplayNameMultiline(ItemStack itemstack)
+    {
         List<String> nameList = null;
-        try {
+        try
+        {
             nameList = itemstack.getTooltip(Minecraft.getMinecraft().player, ITooltipFlag.TooltipFlags.NORMAL);
-        } catch (Throwable ignored) {
+        }
+        catch (Throwable ignored)
+        {
         }
 
         if (nameList == null)
@@ -94,31 +109,35 @@ public class ItemList {
     }
 
     @SuppressWarnings("unchecked")
-    public static void updateList() {
+    public static void updateList()
+    {
         LinkedList<ItemStack> items = new LinkedList<ItemStack>();
         NonNullList<ItemStack> permutations = NonNullList.create();
         ListMultimap<Item, ItemStack> itemMap = ArrayListMultimap.create();
 
-        for (Item item : Item.REGISTRY) {
+        for (Item item : Item.REGISTRY)
+        {
 
             if (item == null)
                 continue;
 
-            try {
+            try
+            {
                 permutations.clear();
 
                 if (permutations.isEmpty())
-//                    item.getSubItems(null, permutations);
+                    //                    item.getSubItems(null, permutations);
                     for (CreativeTabs tab : item.getCreativeTabs())
                         item.getSubItems(tab, permutations);
 
                 if (permutations.isEmpty())
                     damageSearch(item, permutations);
 
-
                 items.addAll(permutations);
                 itemMap.putAll(item, permutations);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }

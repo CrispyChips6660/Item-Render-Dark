@@ -9,7 +9,6 @@
  */
 package itemrender;
 
-
 import itemrender.client.RenderTickHandler;
 import itemrender.client.export.ExportUtils;
 import itemrender.client.export.ItemList;
@@ -33,8 +32,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Mod(modid = ItemRenderMod.MODID, name = "Item Render", version = "@VERSION@", guiFactory = "itemrender.ItemRenderGuiFactory", acceptedMinecraftVersions = "[1.12, 1.12.10]")
-public class ItemRenderMod {
+@Mod(
+        modid = ItemRenderMod.MODID, name = "Item Render", version = "@VERSION@", guiFactory = "itemrender.ItemRenderGuiFactory", acceptedMinecraftVersions = "[1.12, 1.12.10]"
+)
+public class ItemRenderMod
+{
 
     static final String MODID = "itemrender";
 
@@ -64,7 +66,8 @@ public class ItemRenderMod {
     @SideOnly(Side.CLIENT)
     private RenderTickHandler renderTickHandler = new RenderTickHandler();
 
-    private static void syncConfig() {
+    private static void syncConfig()
+    {
         mainBlockSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderBlockMain", DEFAULT_MAIN_BLOCK_SIZE, I18n.format("itemrender.cfg.mainblock")).getInt();
         gridBlockSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderBlockGrid", DEFAULT_GRID_BLOCK_SIZE, I18n.format("itemrender.cfg.gridblock")).getInt();
         mainEntitySize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderEntityMain", DEFAULT_MAIN_ENTITY_SIZE, I18n.format("itemrender.cfg.mainentity")).getInt();
@@ -72,15 +75,17 @@ public class ItemRenderMod {
         playerSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderPlayer", DEFAULT_PLAYER_SIZE, I18n.format("itemrender.cfg.player")).getInt();
         exportVanillaItems = cfg.get(Configuration.CATEGORY_GENERAL, "ExportVanillaItems", false, I18n.format("itemrender.cfg.vanilla")).getBoolean();
         debugMode = cfg.get(Configuration.CATEGORY_GENERAL, "DebugMode", false, I18n.format("itemrender.cfg.debug")).getBoolean();
-        blacklist = Arrays.asList(cfg.get(Configuration.CATEGORY_GENERAL, "BlackList", new String[]{}, I18n.format("itemrender.cfg.blacklist")).getStringList());
+        blacklist = Arrays.asList(cfg.get(Configuration.CATEGORY_GENERAL, "BlackList", new String[] {}, I18n.format("itemrender.cfg.blacklist")).getStringList());
         if (cfg.hasChanged())
             cfg.save();
     }
 
     @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    public void preInit(FMLPreInitializationEvent event)
+    {
         log = event.getModLog();
-        if (event.getSide().isServer()) {
+        if (event.getSide().isServer())
+        {
             log.error(I18n.format("itemrender.msg.clientonly"));
             return;
         }
@@ -92,13 +97,16 @@ public class ItemRenderMod {
     }
 
     @Mod.EventHandler
-    public void serverStarting(FMLServerStartingEvent event) {
+    public void serverStarting(FMLServerStartingEvent event)
+    {
         event.registerServerCommand(new CommandItemRender());
     }
 
     @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
-        if (event.getSide().isServer()) {
+    public void init(FMLInitializationEvent event)
+    {
+        if (event.getSide().isServer())
+        {
             log.error(I18n.format("itemrender.msg.clientonly"));
             return;
         }
@@ -106,7 +114,8 @@ public class ItemRenderMod {
         MinecraftForge.EVENT_BUS.register(instance);
         MinecraftForge.EVENT_BUS.register(renderTickHandler);
 
-        if (gl32_enabled) {
+        if (gl32_enabled)
+        {
             ExportUtils.INSTANCE = new ExportUtils();
 
             KeybindRenderInventoryBlock defaultRender = new KeybindRenderInventoryBlock(mainBlockSize, "", Keyboard.KEY_LBRACKET, I18n.format("itemrender.key.block", mainBlockSize));
@@ -118,20 +127,24 @@ public class ItemRenderMod {
             MinecraftForge.EVENT_BUS.register(new KeybindToggleRender());
             MinecraftForge.EVENT_BUS.register(new KeybindRenderCurrentPlayer(playerSize));
             MinecraftForge.EVENT_BUS.register(new KeybindExport());
-        } else {
+        }
+        else
+        {
             MinecraftForge.EVENT_BUS.register(new KeybindWarn());
             log.error(I18n.format("itemrender.msg.openglerror"));
         }
     }
 
     @Mod.EventHandler
-    public void postInit(FMLInitializationEvent event) {
+    public void postInit(FMLInitializationEvent event)
+    {
         if (event.getSide().isClient())
             ItemList.updateList();
     }
 
     @SubscribeEvent
-    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+    public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
+    {
         if (event.getModID().equals(ItemRenderMod.MODID))
             syncConfig();
     }

@@ -27,22 +27,29 @@ import java.io.IOException;
  *
  * @author Meow J
  */
-public class KeybindExport {
+public class KeybindExport
+{
     public final KeyBinding key;
 
-    public KeybindExport() {
+    public KeybindExport()
+    {
         key = new KeyBinding(I18n.format("itemrender.key.export"), Keyboard.KEY_I, "Item Render");
         ClientRegistry.registerKeyBinding(key);
     }
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) throws IllegalAccessException, Throwable {
+    public void onKeyInput(InputEvent.KeyInputEvent event) throws IllegalAccessException, Throwable
+    {
         if (FMLClientHandler.instance().isGUIOpen(GuiChat.class))
             return;
-        if (key.isPressed()) {
-            try {
+        if (key.isPressed())
+        {
+            try
+            {
                 ExportUtils.INSTANCE.exportMods();
-            } catch (IOException e) {
+            }
+            catch (IOException e)
+            {
                 e.printStackTrace();
             }
         }

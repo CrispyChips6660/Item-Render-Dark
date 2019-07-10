@@ -23,12 +23,13 @@ import net.minecraftforge.oredict.OreDictionary;
  *
  * @author Meow J
  */
-public class ItemData {
+public class ItemData
+{
     private String name;
     private String englishName;
     private String registerName;
     private int metadata;
-	private String OredictList;
+    private String OredictList;
     private String CreativeTabName;
     private String type;
     private int maxStackSize;
@@ -37,44 +38,51 @@ public class ItemData {
     private String largeIcon;
     private transient ItemStack itemStack;
 
-
-    public ItemData(ItemStack itemStack) {
+    public ItemData(ItemStack itemStack)
+    {
         if (ItemRenderMod.debugMode)
             ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getTranslationKey() + "@" + itemStack.getMetadata()));
         name = null;
         englishName = null;
         registerName = itemStack.getItem().getRegistryName().toString();
-        metadata=itemStack.getMetadata();
+        metadata = itemStack.getMetadata();
         List<String> list = new ArrayList<String>();
-        if(!itemStack.isEmpty()){
-        for(int i : OreDictionary.getOreIDs(itemStack)){
-        	String ore = OreDictionary.getOreName(i);
-        	list.add(ore);
+        if (!itemStack.isEmpty())
+        {
+            for (int i : OreDictionary.getOreIDs(itemStack))
+            {
+                String ore = OreDictionary.getOreName(i);
+                list.add(ore);
+            }
+            OredictList = list.toString();
         }
-        OredictList = list.toString();
-        }
-        CreativeTabName=null;
+        CreativeTabName = null;
         type = ExportUtils.INSTANCE.getType(itemStack);
         maxStackSize = itemStack.getMaxStackSize();
         maxDurability = itemStack.getMaxDamage() + 1;
         smallIcon = ExportUtils.INSTANCE.getSmallIcon(itemStack);
         largeIcon = ExportUtils.INSTANCE.getLargeIcon(itemStack);
-        
+
         this.itemStack = itemStack;
     }
 
-    public ItemStack getItemStack() {
+    public ItemStack getItemStack()
+    {
         return itemStack;
     }
 
-    public void setCreativeName(String name) {
+    public void setCreativeName(String name)
+    {
         this.CreativeTabName = name;
     }
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
     }
-    public void setEnglishName(String englishName) {
+
+    public void setEnglishName(String englishName)
+    {
         this.englishName = englishName;
     }
 

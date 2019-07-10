@@ -26,7 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-public final class FBOHelper {
+public final class FBOHelper
+{
     private int renderTextureSize = 128;
     private int framebufferID = -1;
     private int depthbufferID = -1;
@@ -36,19 +37,22 @@ public final class FBOHelper {
     private int lastTexture;
     private int lastFramebuffer;
 
-    public FBOHelper(int textureSize) {
+    public FBOHelper(int textureSize)
+    {
         renderTextureSize = textureSize;
 
         createFramebuffer();
     }
 
-    public void resize(int newSize) {
+    public void resize(int newSize)
+    {
         deleteFramebuffer();
         renderTextureSize = newSize;
         createFramebuffer();
     }
 
-    void begin() {
+    void begin()
+    {
         checkGlErrors("FBO Begin Init");
 
         // Remember current framebuffer.
@@ -80,7 +84,8 @@ public final class FBOHelper {
         checkGlErrors("FBO Begin Final");
     }
 
-    void end() {
+    void end()
+    {
         checkGlErrors("FBO End Init");
 
         GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -103,17 +108,20 @@ public final class FBOHelper {
         checkGlErrors("FBO End Final");
     }
 
-    public void bind() {
+    public void bind()
+    {
         GlStateManager.bindTexture(textureID);
     }
 
     // This is only a separate function because the texture gets messed with
     // after you're done rendering to read the FBO
-    void restoreTexture() {
+    void restoreTexture()
+    {
         GlStateManager.bindTexture(lastTexture);
     }
 
-    void saveToFile(File file) {
+    void saveToFile(File file)
+    {
         // Bind framebuffer texture
         GlStateManager.bindTexture(textureID);
 
@@ -133,14 +141,18 @@ public final class FBOHelper {
         image.setRGB(0, 0, renderTextureSize, renderTextureSize, texture_array, 0, width);
 
         file.mkdirs();
-        try {
+        try
+        {
             ImageIO.write(image, "png", file);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             // Do nothing
         }
     }
 
-    String getBase64() {
+    String getBase64()
+    {
         // Bind framebuffer texture
         GlStateManager.bindTexture(textureID);
 
@@ -160,16 +172,20 @@ public final class FBOHelper {
         image.setRGB(0, 0, renderTextureSize, renderTextureSize, texture_array, 0, width);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
+        try
+        {
             ImageIO.write(image, "PNG", out);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             // Do nothing
         }
 
         return Base64.encodeBase64String(out.toByteArray());
     }
 
-    private void createFramebuffer() {
+    private void createFramebuffer()
+    {
         framebufferID = EXTFramebufferObject.glGenFramebuffersEXT();
         textureID = GL11.glGenTextures();
         int currentFramebuffer = GL11.glGetInteger(EXTFramebufferObject.GL_FRAMEBUFFER_BINDING_EXT);
@@ -203,16 +219,19 @@ public final class FBOHelper {
         EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, currentFramebuffer);
     }
 
-    private void deleteFramebuffer() {
+    private void deleteFramebuffer()
+    {
         EXTFramebufferObject.glDeleteFramebuffersEXT(framebufferID);
         GL11.glDeleteTextures(textureID);
         EXTFramebufferObject.glDeleteRenderbuffersEXT(depthbufferID);
     }
 
-    private static void checkGlErrors(String message) {
+    private static void checkGlErrors(String message)
+    {
         int error = GL11.glGetError();
 
-        if (error != 0) {
+        if (error != 0)
+        {
             String error_name = GLU.gluErrorString(error);
             ItemRenderMod.instance.log.error("########## GL ERROR ##########");
             ItemRenderMod.instance.log.error("@ " + message);

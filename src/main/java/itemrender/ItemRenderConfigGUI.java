@@ -10,7 +10,6 @@
 
 package itemrender;
 
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -21,8 +20,10 @@ import net.minecraftforge.fml.client.config.GuiConfig;
  *
  * @author Meow J
  */
-public class ItemRenderConfigGUI extends GuiConfig {
-    public ItemRenderConfigGUI(GuiScreen parentScreen) {
+public class ItemRenderConfigGUI extends GuiConfig
+{
+    public ItemRenderConfigGUI(GuiScreen parentScreen)
+    {
         super(parentScreen, new ConfigElement(ItemRenderMod.cfg.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(), ItemRenderMod.MODID, false, true, GuiConfig.getAbridgedConfigPath(ItemRenderMod.cfg.toString()));
     }
 }
