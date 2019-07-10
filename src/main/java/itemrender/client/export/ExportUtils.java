@@ -25,7 +25,10 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraftforge.client.resource.VanillaResourceType;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -89,6 +92,7 @@ public class ExportUtils {
     }
     
     public void exportMods() throws IOException{
+    	long ms = Minecraft.getSystemTime();
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         itemDataList.clear();
         mobDataList.clear();
@@ -121,11 +125,12 @@ public class ExportUtils {
             if (!modList.contains(getEntityOwner(Entity))) modList.add(getEntityOwner(Entity));
         }
 
+        boolean reloadstate = ForgeModContainer.selectiveResourceReloadEnabled;
+        boolean unicodeState = minecraft.fontRenderer.getUnicodeFlag();
+        ForgeModContainer.selectiveResourceReloadEnabled = true;
+        
         // Since refreshResources takes a long time, only refresh once for all the items
-        minecraft.getLanguageManager().setCurrentLanguage(new Language("zh_CN", "中国", "简体中文", false));
-        minecraft.gameSettings.language = "zh_CN";
-        minecraft.refreshResources();
-        minecraft.gameSettings.saveOptions();
+        refreshLanguage(minecraft, "zh_CN");
 
         for (ItemData data : itemDataList) {
             if (ItemRenderMod.debugMode)
@@ -139,10 +144,8 @@ public class ExportUtils {
             data.setName(new TextComponentTranslation("entity." + data.getMob().getName() + ".name", new Object[0]).getFormattedText());
         }
 
-        minecraft.getLanguageManager().setCurrentLanguage(new Language("en_US", "US", "English", false));
-        minecraft.gameSettings.language = "en_US";
-        minecraft.refreshResources();
         minecraft.fontRenderer.setUnicodeFlag(false);
+        refreshLanguage(minecraft, "en_US");
         minecraft.gameSettings.saveOptions();
 
         for (ItemData data : itemDataList) {
@@ -185,13 +188,24 @@ public class ExportUtils {
         pw1.close();
         }
         
-        minecraft.getLanguageManager().setCurrentLanguage(lang);
-        minecraft.gameSettings.language = lang.getLanguageCode();
-        minecraft.refreshResources();
-        minecraft.fontRenderer.setUnicodeFlag(false);
-        minecraft.gameSettings.saveOptions();
+        refreshLanguage(minecraft, lang.getLanguageCode());
+        ForgeModContainer.selectiveResourceReloadEnabled = reloadstate;
+        minecraft.fontRenderer.setUnicodeFlag(unicodeState);
+        
+        String output = String.format("导出完毕。耗时%ss", (Minecraft.getSystemTime() - ms) / 1000f);
+        minecraft.player.sendMessage(new TextComponentString(output));
     }
 
+    private static void refreshLanguage(Minecraft mc, String lang)
+    {
+    	if (!mc.gameSettings.language.equals(lang))
+    	{
+    		mc.getLanguageManager().setCurrentLanguage(new Language(lang, "", "", false));
+        	mc.gameSettings.language = lang;
+            FMLClientHandler.instance().refreshResources(VanillaResourceType.LANGUAGES);
+            mc.gameSettings.saveOptions();
+    	}
+    }
 
 	private String getCreativeTabName(ItemData data) {
 		CreativeTabs tab = data.getItemStack().getItem().getCreativeTab();
