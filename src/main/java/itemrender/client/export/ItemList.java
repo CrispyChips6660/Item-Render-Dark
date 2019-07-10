@@ -86,7 +86,7 @@ public class ItemList {
         if (nameList.get(0) == null || nameList.get(0).equals(""))
             nameList.set(0, "Unnamed");
 
-        nameList.set(0, itemstack.getRarity().rarityColor.toString() + nameList.get(0));
+        nameList.set(0, itemstack.getRarity().color.toString() + nameList.get(0));
         for (int i = 1; i < nameList.size(); i++)
             nameList.set(i, "\u00a77" + nameList.get(i));
 

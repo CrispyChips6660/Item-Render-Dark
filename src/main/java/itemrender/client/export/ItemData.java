@@ -40,7 +40,7 @@ public class ItemData {
 
     public ItemData(ItemStack itemStack) {
         if (ItemRenderMod.debugMode)
-            ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getItem().getUnlocalizedName() + "@" + itemStack.getMetadata()));
+            ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getTranslationKey() + "@" + itemStack.getMetadata()));
         name = null;
         englishName = null;
         registerName = itemStack.getItem().getRegistryName().toString();

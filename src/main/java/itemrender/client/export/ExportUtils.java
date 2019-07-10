@@ -19,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.Language;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.item.ItemBlock;
@@ -80,11 +81,11 @@ public class ExportUtils {
     
     private String getItemOwner(ItemStack itemStack) {
         ResourceLocation registryName = itemStack.getItem().getRegistryName();
-        return registryName == null ? "unnamed" : registryName.getResourceDomain();
+        return registryName == null ? "unnamed" : registryName.getNamespace();
     }
     private String getEntityOwner(EntityEntry Entitymob) {
         ResourceLocation registryName = Entitymob.getRegistryName();
-        return registryName == null ? "unnamed" : registryName.getResourceDomain();
+        return registryName == null ? "unnamed" : registryName.getNamespace();
     }
     
     public void exportMods() throws IOException{
@@ -104,7 +105,7 @@ public class ExportUtils {
             if (itemStack == null) continue;
             if (getItemOwner(itemStack).equals("minecraft") && !ItemRenderMod.exportVanillaItems) continue;
 
-            identifier = itemStack.getItem().getUnlocalizedName() + "@" + itemStack.getMetadata();
+            identifier = itemStack.getTranslationKey() + "@" + itemStack.getMetadata();
             if (ItemRenderMod.blacklist.contains(identifier)) continue;
 
             itemData = new ItemData(itemStack);
@@ -128,7 +129,7 @@ public class ExportUtils {
 
         for (ItemData data : itemDataList) {
             if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getItem().getUnlocalizedName() + "@" + data.getItemStack().getMetadata()));
+                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setName(this.getLocalizedName(data.getItemStack()));
             data.setCreativeName(getCreativeTabName(data));
         }
@@ -146,7 +147,7 @@ public class ExportUtils {
 
         for (ItemData data : itemDataList) {
             if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getItem().getUnlocalizedName() + "@" + data.getItemStack().getMetadata()));
+                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setEnglishName(this.getLocalizedName(data.getItemStack()));
         }
         
@@ -159,7 +160,7 @@ public class ExportUtils {
         File export;
         File export1;
         for (String modid : modList) {
-            export = new File(minecraft.mcDataDir, String.format("export/"+modid+"_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+            export = new File(minecraft.gameDir, String.format("export/"+modid+"_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
             if (!export.getParentFile().exists()) export.getParentFile().mkdirs();
             if (!export.exists()) export.createNewFile();
             PrintWriter pw = new PrintWriter(export, "UTF-8");
@@ -172,7 +173,7 @@ public class ExportUtils {
 
         }
         for (String modid : modList) {
-        export1 = new File(minecraft.mcDataDir, String.format("export/"+modid+"_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+        export1 = new File(minecraft.gameDir, String.format("export/"+modid+"_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
         if (!export1.getParentFile().exists()) export1.getParentFile().mkdirs();
         if (!export1.exists()) export1.createNewFile();
         PrintWriter pw1 = new PrintWriter(export1, "UTF-8");
@@ -193,8 +194,9 @@ public class ExportUtils {
 
 
 	private String getCreativeTabName(ItemData data) {
-		if(data.getItemStack().getItem().getCreativeTab()!=null){
-		return new TextComponentTranslation(data.getItemStack().getItem().getCreativeTab().getTranslatedTabLabel(), new Object[0]).getFormattedText();
+		CreativeTabs tab = data.getItemStack().getItem().getCreativeTab();
+		if(tab!=null){
+		return I18n.format(tab.getTranslationKey());
 		}else{
 		return "";
 		}

@@ -38,7 +38,7 @@ public class MobData {
             ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", Entitymob.getName()));
         name = null;
         Englishname=null;
-        mod = Entitymob.getRegistryName().getResourceDomain();
+        mod = Entitymob.getRegistryName().getNamespace();
         registerName = Entitymob.getRegistryName().toString();    
         Icon = ExportUtils.INSTANCE.getEntityIcon(Entitymob);
         this.mob = Entitymob;
