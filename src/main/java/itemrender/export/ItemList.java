@@ -84,7 +84,6 @@ public class ItemList implements IItemList
         return TextFormatting.getTextWithoutFormattingCodes(sb.toString());
     }
 
-    @SuppressWarnings("unchecked")
     private static List<String> itemDisplayNameMultiline(ItemStack itemstack)
     {
         List<String> nameList = null;
@@ -112,7 +111,6 @@ public class ItemList implements IItemList
         return nameList;
     }
 
-    @SuppressWarnings("unchecked")
     public void updateList()
     {
         LinkedList<ItemStack> items = new LinkedList<ItemStack>();
