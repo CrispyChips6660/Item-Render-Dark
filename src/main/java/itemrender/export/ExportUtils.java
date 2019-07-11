@@ -10,8 +10,15 @@
 
 package itemrender.export;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import itemrender.ItemRender;
 import itemrender.rendering.FBOHelper;
 import itemrender.rendering.Renderer;
@@ -31,12 +38,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by Meow J on 8/17/2015.
  *
@@ -50,8 +51,6 @@ public class ExportUtils
     private FBOHelper fboLarge;
     private FBOHelper fboEntity;
     private RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
-    private List<ItemData> itemDataList = new ArrayList<ItemData>();
-    private List<MobData> mobDataList = new ArrayList<MobData>();
 
     public ExportUtils()
     {
@@ -99,13 +98,12 @@ public class ExportUtils
 
     public void exportMods(String pattern) throws IOException
     {
+        Multimap<String, ItemData> itemDataList = LinkedListMultimap.create();
+        Multimap<String, MobData> mobDataList = LinkedListMultimap.create();
         long ms = Minecraft.getSystemTime();
-        Minecraft minecraft = FMLClientHandler.instance().getClient();
-        itemDataList.clear();
-        mobDataList.clear();
-        List<String> modList = new ArrayList<String>();
+        Minecraft mc = Minecraft.getMinecraft();
 
-        Language lang = minecraft.getLanguageManager().getCurrentLanguage();
+        Language lang = mc.getLanguageManager().getCurrentLanguage();
 
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         ItemData itemData;
@@ -119,9 +117,7 @@ public class ExportUtils
                 continue;
 
             itemData = new ItemData(itemStack);
-            itemDataList.add(itemData);
-            if (!modList.contains(getItemOwner(itemStack)))
-                modList.add(getItemOwner(itemStack));
+            itemDataList.put(getItemOwner(itemStack), itemData);
         }
         for (EntityEntry entity : ForgeRegistries.ENTITIES)
         {
@@ -131,44 +127,42 @@ public class ExportUtils
                 continue;
 
             mobData = new MobData(entity);
-            mobDataList.add(mobData);
-            if (!modList.contains(getEntityOwner(entity)))
-                modList.add(getEntityOwner(entity));
+            mobDataList.put(getEntityOwner(entity), mobData);
         }
 
         boolean reloadstate = ForgeModContainer.selectiveResourceReloadEnabled;
-        boolean unicodeState = minecraft.fontRenderer.getUnicodeFlag();
+        boolean unicodeState = mc.fontRenderer.getUnicodeFlag();
         ForgeModContainer.selectiveResourceReloadEnabled = true;
 
         // Since refreshResources takes a long time, only refresh once for all the items
-        refreshLanguage(minecraft, "zh_CN");
+        refreshLanguage(mc, "zh_CN");
 
-        for (ItemData data : itemDataList)
+        for (ItemData data : itemDataList.values())
         {
             if (ItemRender.debugMode)
                 ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setName(data.getItemStack().getDisplayName());
             data.setCreativeName(getCreativeTabName(data));
         }
-        for (MobData data : mobDataList)
+        for (MobData data : mobDataList.values())
         {
             if (ItemRender.debugMode)
                 ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getMob().getRegistryName()));
             data.setName(I18n.format("entity." + data.getMob().getName() + ".name"));
         }
 
-        minecraft.fontRenderer.setUnicodeFlag(false);
-        refreshLanguage(minecraft, "en_US");
-        minecraft.gameSettings.saveOptions();
+        mc.fontRenderer.setUnicodeFlag(false);
+        refreshLanguage(mc, "en_US");
+        mc.gameSettings.saveOptions();
 
-        for (ItemData data : itemDataList)
+        for (ItemData data : itemDataList.values())
         {
             if (ItemRender.debugMode)
                 ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setEnglishName(this.getLocalizedName(data.getItemStack()));
         }
 
-        for (MobData data : mobDataList)
+        for (MobData data : mobDataList.values())
         {
             if (ItemRender.debugMode)
                 ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getMob().getRegistryName()));
@@ -177,46 +171,44 @@ public class ExportUtils
 
         File export;
         File export1;
-        for (String modid : modList)
+        for (String modid : itemDataList.keySet())
         {
-            export = new File(minecraft.gameDir, String.format("export/" + modid + "_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+            export = new File(mc.gameDir, String.format("export/" + modid + "_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
             if (!export.getParentFile().exists())
                 export.getParentFile().mkdirs();
             if (!export.exists())
                 export.createNewFile();
             PrintWriter pw = new PrintWriter(export, "UTF-8");
 
-            for (ItemData data : itemDataList)
+            for (ItemData data : itemDataList.get(modid))
             {
-                if (modid.equals(getItemOwner(data.getItemStack())))
-                    pw.println(gson.toJson(data));
+                pw.println(gson.toJson(data));
             }
             pw.close();
 
         }
-        for (String modid : modList)
+        for (String modid : mobDataList.keySet())
         {
-            export1 = new File(minecraft.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+            export1 = new File(mc.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
             if (!export1.getParentFile().exists())
                 export1.getParentFile().mkdirs();
             if (!export1.exists())
                 export1.createNewFile();
             PrintWriter pw1 = new PrintWriter(export1, "UTF-8");
 
-            for (MobData data : mobDataList)
+            for (MobData data : mobDataList.get(modid))
             {
-                if (modid.equals(getEntityOwner(data.getMob())))
-                    pw1.println(gson.toJson(data));
+                pw1.println(gson.toJson(data));
             }
             pw1.close();
         }
 
-        refreshLanguage(minecraft, lang.getLanguageCode());
+        refreshLanguage(mc, lang.getLanguageCode());
         ForgeModContainer.selectiveResourceReloadEnabled = reloadstate;
-        minecraft.fontRenderer.setUnicodeFlag(unicodeState);
+        mc.fontRenderer.setUnicodeFlag(unicodeState);
 
         String output = String.format("导出完毕。耗时%ss", (Minecraft.getSystemTime() - ms) / 1000f);
-        minecraft.player.sendMessage(new TextComponentString(output));
+        mc.player.sendMessage(new TextComponentString(output));
     }
 
     private static void refreshLanguage(Minecraft mc, String lang)
