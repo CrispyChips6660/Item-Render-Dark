@@ -8,7 +8,7 @@
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
 
-package itemrender.client.export;
+package itemrender.export;
 
 import java.util.ArrayList;
 import java.util.List;

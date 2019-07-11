@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import itemrender.client.export.ExportUtils;
+import itemrender.export.ExportUtils;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;

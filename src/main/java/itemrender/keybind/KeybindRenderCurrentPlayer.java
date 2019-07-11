@@ -7,55 +7,48 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
+package itemrender.keybind;
 
-package itemrender.client.keybind;
-
-import itemrender.client.export.ExportUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import org.lwjgl.input.Keyboard;
 
-import java.io.IOException;
+import itemrender.rendering.FBOHelper;
+import itemrender.rendering.Renderer;
 
-/**
- * Created by Meow J on 8/17/2015.
- *
- * @author Meow J
- */
-public class KeybindExport
+public class KeybindRenderCurrentPlayer
 {
-    public final KeyBinding key;
 
-    public KeybindExport()
+    private final KeyBinding key;
+    private FBOHelper fbo;
+
+    public KeybindRenderCurrentPlayer(int textureSize)
     {
-        key = new KeyBinding(I18n.format("itemrender.key.export"), Keyboard.KEY_I, "Item Render");
+        fbo = new FBOHelper(textureSize);
+        key = new KeyBinding(I18n.format("itemrender.key.currentplayer"), Keyboard.KEY_P, "Item Render");
         ClientRegistry.registerKeyBinding(key);
     }
 
     @SubscribeEvent
-    public void onKeyInput(InputEvent.KeyInputEvent event) throws IllegalAccessException, Throwable
+    public void onKeyInput(InputEvent.KeyInputEvent event)
     {
         if (FMLClientHandler.instance().isGUIOpen(GuiChat.class))
             return;
         if (key.isPressed())
         {
-            try
-            {
-                ExportUtils.INSTANCE.exportMods(".*");
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-                Minecraft.getMinecraft().player.sendMessage(new TextComponentString(TextFormatting.RED + e.toString()));
-            }
+            Minecraft minecraft = FMLClientHandler.instance().getClient();
+            Entity player = ReflectionHelper.getPrivateValue(Minecraft.class, minecraft, "field_175622_Z", "renderViewEntity");
+            if (player != null)
+                Renderer.renderEntity((EntityLivingBase) player, fbo, "", true);
         }
     }
 }

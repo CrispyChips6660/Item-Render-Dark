@@ -7,7 +7,7 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
-package itemrender.client.rendering;
+package itemrender.rendering;
 
 import itemrender.ItemRenderMod;
 import net.minecraft.client.renderer.GLAllocation;

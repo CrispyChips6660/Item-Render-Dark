@@ -7,33 +7,33 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
-package itemrender.client.keybind;
+package itemrender.keybind;
 
-import itemrender.client.rendering.FBOHelper;
-import itemrender.client.rendering.Renderer;
+import itemrender.rendering.FBOHelper;
+import itemrender.rendering.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import org.lwjgl.input.Keyboard;
 
-public class KeybindRenderCurrentPlayer
+public class KeybindRenderInventoryBlock
 {
 
     private final KeyBinding key;
-    private FBOHelper fbo;
+    public FBOHelper fbo;
+    private String filenameSuffix = "";
+    private RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
 
-    public KeybindRenderCurrentPlayer(int textureSize)
+    public KeybindRenderInventoryBlock(int textureSize, String filename_suffix, int keyVal, String des)
     {
         fbo = new FBOHelper(textureSize);
-        key = new KeyBinding(I18n.format("itemrender.key.currentplayer"), Keyboard.KEY_P, "Item Render");
+        filenameSuffix = filename_suffix;
+        key = new KeyBinding(des, keyVal, "Item Render");
         ClientRegistry.registerKeyBinding(key);
     }
 
@@ -45,9 +45,14 @@ public class KeybindRenderCurrentPlayer
         if (key.isPressed())
         {
             Minecraft minecraft = FMLClientHandler.instance().getClient();
-            Entity player = ReflectionHelper.getPrivateValue(Minecraft.class, minecraft, "field_175622_Z", "renderViewEntity");
-            if (player != null)
-                Renderer.renderEntity((EntityLivingBase) player, fbo, "", true);
+            if (minecraft.player != null)
+            {
+                ItemStack current = minecraft.player.getHeldItemMainhand();
+                if (current != null && current.getItem() != null)
+                {
+                    Renderer.renderItem(current, fbo, filenameSuffix, itemRenderer);
+                }
+            }
         }
     }
 }

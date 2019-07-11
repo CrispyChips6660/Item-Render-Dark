@@ -9,10 +9,9 @@
  */
 package itemrender;
 
-import itemrender.client.RenderTickHandler;
-import itemrender.client.export.ExportUtils;
-import itemrender.client.export.ItemList;
-import itemrender.client.keybind.*;
+import itemrender.export.ExportUtils;
+import itemrender.export.ItemList;
+import itemrender.keybind.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;

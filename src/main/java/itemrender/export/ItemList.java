@@ -8,7 +8,7 @@
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
 
-package itemrender.client.export;
+package itemrender.export;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -113,7 +113,7 @@ public class ItemList
     {
         LinkedList<ItemStack> items = new LinkedList<ItemStack>();
         NonNullList<ItemStack> permutations = NonNullList.create();
-        ListMultimap<Item, ItemStack> itemMap = ArrayListMultimap.create();
+        //ListMultimap<Item, ItemStack> itemMap = ArrayListMultimap.create();
 
         for (Item item : Item.REGISTRY)
         {
@@ -134,7 +134,7 @@ public class ItemList
                     damageSearch(item, permutations);
 
                 items.addAll(permutations);
-                itemMap.putAll(item, permutations);
+                //itemMap.putAll(item, permutations);
             }
             catch (Exception e)
             {

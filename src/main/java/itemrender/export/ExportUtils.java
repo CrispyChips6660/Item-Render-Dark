@@ -8,13 +8,13 @@
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
 
-package itemrender.client.export;
+package itemrender.export;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import itemrender.ItemRenderMod;
-import itemrender.client.rendering.FBOHelper;
-import itemrender.client.rendering.Renderer;
+import itemrender.rendering.FBOHelper;
+import itemrender.rendering.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.resources.I18n;

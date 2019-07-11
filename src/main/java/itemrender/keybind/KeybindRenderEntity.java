@@ -7,10 +7,10 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
-package itemrender.client.keybind;
+package itemrender.keybind;
 
-import itemrender.client.rendering.FBOHelper;
-import itemrender.client.rendering.Renderer;
+import itemrender.rendering.FBOHelper;
+import itemrender.rendering.Renderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.settings.KeyBinding;

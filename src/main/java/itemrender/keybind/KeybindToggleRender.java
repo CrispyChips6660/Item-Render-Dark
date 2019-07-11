@@ -7,9 +7,8 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
-package itemrender.client.keybind;
+package itemrender.keybind;
 
-import itemrender.client.RenderTickHandler;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
@@ -18,6 +17,8 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.lwjgl.input.Keyboard;
+
+import itemrender.RenderTickHandler;
 
 public class KeybindToggleRender
 {

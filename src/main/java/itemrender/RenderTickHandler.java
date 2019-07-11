@@ -7,13 +7,14 @@
  * You should have received a copy of the The MIT License along with
  * this project.   If not, see <http://opensource.org/licenses/MIT>.
  */
-package itemrender.client;
+package itemrender;
 
-import itemrender.client.keybind.KeybindRenderInventoryBlock;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.lwjgl.opengl.GL11;
+
+import itemrender.keybind.KeybindRenderInventoryBlock;
 
 public class RenderTickHandler
 {
