@@ -153,7 +153,6 @@ public class ExportUtils
 
         mc.fontRenderer.setUnicodeFlag(false);
         refreshLanguage(mc, "en_US");
-        mc.gameSettings.saveOptions();
 
         for (ItemData data : itemDataList.values())
         {
@@ -218,7 +217,6 @@ public class ExportUtils
             mc.getLanguageManager().setCurrentLanguage(new Language(lang, "", "", false));
             mc.gameSettings.language = lang;
             FMLClientHandler.instance().refreshResources(VanillaResourceType.LANGUAGES);
-            mc.gameSettings.saveOptions();
         }
     }
 
