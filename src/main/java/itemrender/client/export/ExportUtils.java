@@ -25,6 +25,7 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.registry.EntityEntry;
@@ -89,6 +90,7 @@ public class ExportUtils {
     }
     
     public void exportMods() throws IOException{
+        long ms = Minecraft.getSystemTime();
         Minecraft minecraft = FMLClientHandler.instance().getClient();
         itemDataList.clear();
         mobDataList.clear();
@@ -122,7 +124,7 @@ public class ExportUtils {
         }
 
         // Since refreshResources takes a long time, only refresh once for all the items
-        minecraft.getLanguageManager().setCurrentLanguage(new Language("zh_CN", "中国", "简体中文", false));
+        minecraft.getLanguageManager().setCurrentLanguage(new Language("zh_CN", "", "", false));
         minecraft.gameSettings.language = "zh_CN";
         minecraft.refreshResources();
         minecraft.gameSettings.saveOptions();
@@ -190,6 +192,8 @@ public class ExportUtils {
         minecraft.refreshResources();
         minecraft.fontRenderer.setUnicodeFlag(false);
         minecraft.gameSettings.saveOptions();
+        String output = String.format("导出完毕。耗时%ss", (Minecraft.getSystemTime() - ms) / 1000f);
+        minecraft.player.sendMessage(new TextComponentString(output));
     }
 
 

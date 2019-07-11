@@ -2,6 +2,7 @@ build/
 eclipse/
 gradle/
 bin/
+run/
 .gradle/
 .settings/
 .project
