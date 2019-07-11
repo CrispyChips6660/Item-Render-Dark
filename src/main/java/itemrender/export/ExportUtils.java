@@ -12,7 +12,7 @@ package itemrender.export;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import itemrender.ItemRenderMod;
+import itemrender.ItemRender;
 import itemrender.rendering.FBOHelper;
 import itemrender.rendering.Renderer;
 import net.minecraft.client.Minecraft;
@@ -111,7 +111,7 @@ public class ExportUtils
         ItemData itemData;
         MobData mobData;
 
-        for (ItemStack itemStack : ItemList.items)
+        for (ItemStack itemStack : ItemRender.itemList.getItems())
         {
             if (itemStack == null)
                 continue;
@@ -145,15 +145,15 @@ public class ExportUtils
 
         for (ItemData data : itemDataList)
         {
-            if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
+            if (ItemRender.debugMode)
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setName(data.getItemStack().getDisplayName());
             data.setCreativeName(getCreativeTabName(data));
         }
         for (MobData data : mobDataList)
         {
-            if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addCN", data.getMob().getRegistryName()));
+            if (ItemRender.debugMode)
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getMob().getRegistryName()));
             data.setName(I18n.format("entity." + data.getMob().getName() + ".name"));
         }
 
@@ -163,15 +163,15 @@ public class ExportUtils
 
         for (ItemData data : itemDataList)
         {
-            if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
+            if (ItemRender.debugMode)
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
             data.setEnglishName(this.getLocalizedName(data.getItemStack()));
         }
 
         for (MobData data : mobDataList)
         {
-            if (ItemRenderMod.debugMode)
-                ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.addEN", data.getMob().getRegistryName()));
+            if (ItemRender.debugMode)
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getMob().getRegistryName()));
             data.setEnglishname(new TextComponentTranslation("entity." + data.getMob().getName() + ".name", new Object[0]).getFormattedText());
         }
 

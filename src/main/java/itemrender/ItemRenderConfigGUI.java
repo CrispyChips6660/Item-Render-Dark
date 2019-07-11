@@ -24,6 +24,6 @@ public class ItemRenderConfigGUI extends GuiConfig
 {
     public ItemRenderConfigGUI(GuiScreen parentScreen)
     {
-        super(parentScreen, new ConfigElement(ItemRenderMod.cfg.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(), ItemRenderMod.MODID, false, true, GuiConfig.getAbridgedConfigPath(ItemRenderMod.cfg.toString()));
+        super(parentScreen, new ConfigElement(ItemRender.cfg.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements(), ItemRender.MODID, false, true, GuiConfig.getAbridgedConfigPath(ItemRender.cfg.toString()));
     }
 }

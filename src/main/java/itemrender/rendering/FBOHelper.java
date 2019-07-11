@@ -9,7 +9,7 @@
  */
 package itemrender.rendering;
 
-import itemrender.ItemRenderMod;
+import itemrender.ItemRender;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import org.apache.commons.codec.binary.Base64;
@@ -233,9 +233,9 @@ public final class FBOHelper
         if (error != 0)
         {
             String error_name = GLU.gluErrorString(error);
-            ItemRenderMod.instance.log.error("########## GL ERROR ##########");
-            ItemRenderMod.instance.log.error("@ " + message);
-            ItemRenderMod.instance.log.error(error + ": " + error_name);
+            ItemRender.instance.log.error("########## GL ERROR ##########");
+            ItemRender.instance.log.error("@ " + message);
+            ItemRender.instance.log.error(error + ": " + error_name);
         }
     }
 }

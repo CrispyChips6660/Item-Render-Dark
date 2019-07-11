@@ -10,7 +10,7 @@
 
 package itemrender.rendering;
 
-import itemrender.ItemRenderMod;
+import itemrender.ItemRender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -39,7 +39,7 @@ public class Renderer
     public static void renderEntity(EntityLivingBase entity, FBOHelper fbo, String filenameSuffix, boolean renderPlayer)
     {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
-        float scale = ItemRenderMod.renderScale;
+        float scale = ItemRender.renderScale;
         fbo.begin();
 
         AxisAlignedBB aabb = entity.getEntityBoundingBox();
@@ -120,7 +120,7 @@ public class Renderer
     public static void renderItem(ItemStack itemStack, FBOHelper fbo, String filenameSuffix, RenderItem itemRenderer)
     {
         Minecraft minecraft = FMLClientHandler.instance().getClient();
-        float scale = ItemRenderMod.renderScale;
+        float scale = ItemRender.renderScale;
         fbo.begin();
 
         GlStateManager.matrixMode(GL11.GL_PROJECTION);
@@ -153,7 +153,7 @@ public class Renderer
     public static String getItemBase64(ItemStack itemStack, FBOHelper fbo, RenderItem itemRenderer)
     {
         String base64;
-        float scale = ItemRenderMod.renderScale;
+        float scale = ItemRender.renderScale;
         fbo.begin();
 
         GlStateManager.matrixMode(GL11.GL_PROJECTION);
@@ -194,7 +194,7 @@ public class Renderer
         }
         else
         {
-            float scale = ItemRenderMod.renderScale;
+            float scale = ItemRender.renderScale;
             fbo.begin();
             EntityLivingBase entity = (EntityLivingBase) Entitymob.newInstance(minecraft.world);
             AxisAlignedBB aabb = entity.getEntityBoundingBox();

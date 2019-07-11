@@ -22,6 +22,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,13 +32,18 @@ import java.util.List;
  *
  * @author Chickenbones
  */
-public class ItemList
+public class ItemList implements IItemList
 {
     /**
      * Fields are replaced atomically and contents never modified.
      */
     static volatile List<ItemStack> items = new ArrayList<ItemStack>();
 
+    public ItemList()
+    {
+        updateList();
+    }
+    
     private static void damageSearch(Item item, List<ItemStack> permutations)
     {
         HashSet<String> damageIconSet = new HashSet<String>();
@@ -109,7 +115,7 @@ public class ItemList
     }
 
     @SuppressWarnings("unchecked")
-    public static void updateList()
+    public void updateList()
     {
         LinkedList<ItemStack> items = new LinkedList<ItemStack>();
         NonNullList<ItemStack> permutations = NonNullList.create();
@@ -142,6 +148,12 @@ public class ItemList
             }
         }
 
-        ItemList.items = items;
+        ItemList.items = Collections.unmodifiableList(items);
+    }
+
+    @Override
+    public List<ItemStack> getItems()
+    {
+        return items;
     }
 }

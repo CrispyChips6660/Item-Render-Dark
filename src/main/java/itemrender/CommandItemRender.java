@@ -52,7 +52,7 @@ public class CommandItemRender extends CommandBase implements IClientCommand
                 float value = Float.valueOf(args[1]);
                 if (value > 0.0F && value <= 2.0F)
                 {
-                    ItemRenderMod.renderScale = Float.valueOf(args[1]);
+                    ItemRender.renderScale = Float.valueOf(args[1]);
                     sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "Scale: " + value));
                 }
                 else
@@ -64,7 +64,7 @@ public class CommandItemRender extends CommandBase implements IClientCommand
             {
                 sender.sendMessage(new TextComponentString(TextFormatting.RED + "/itemrender scale [value]"));
                 sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Execute this command to control entity/item rendering scale."));
-                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Scale Range: (0.0, 2.0]. Default: 1.0. Current: " + ItemRenderMod.renderScale));
+                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Scale Range: (0.0, 2.0]. Default: 1.0. Current: " + ItemRender.renderScale));
             }
         }
         else if (args[0].equalsIgnoreCase("export"))

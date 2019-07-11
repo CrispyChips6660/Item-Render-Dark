@@ -10,7 +10,7 @@
 
 package itemrender.export;
 
-import itemrender.ItemRenderMod;
+import itemrender.ItemRender;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
@@ -31,8 +31,8 @@ public class MobData
     public MobData(EntityEntry Entitymob)
     {
 
-        if (ItemRenderMod.debugMode)
-            ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", Entitymob.getName()));
+        if (ItemRender.debugMode)
+            ItemRender.instance.log.info(I18n.format("itemrender.msg.processing", Entitymob.getName()));
         name = null;
         Englishname = null;
         mod = Entitymob.getRegistryName().getNamespace();

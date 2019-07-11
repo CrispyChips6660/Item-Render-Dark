@@ -13,7 +13,7 @@ package itemrender.export;
 import java.util.ArrayList;
 import java.util.List;
 
-import itemrender.ItemRenderMod;
+import itemrender.ItemRender;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
@@ -40,8 +40,8 @@ public class ItemData
 
     public ItemData(ItemStack itemStack)
     {
-        if (ItemRenderMod.debugMode)
-            ItemRenderMod.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getTranslationKey() + "@" + itemStack.getMetadata()));
+        if (ItemRender.debugMode)
+            ItemRender.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getTranslationKey() + "@" + itemStack.getMetadata()));
         name = null;
         englishName = null;
         registerName = itemStack.getItem().getRegistryName().toString();

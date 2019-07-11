@@ -10,15 +10,20 @@
 package itemrender;
 
 import itemrender.export.ExportUtils;
+import itemrender.export.IItemList;
 import itemrender.export.ItemList;
+import itemrender.jei.JEICompat;
+import itemrender.jei.JEICompat.JEIItemList;
 import itemrender.keybind.*;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -33,14 +38,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mod(
-        modid = ItemRenderMod.MODID,
-        name = "Item Render Dark",
-        version = "@VERSION@",
-        guiFactory = "itemrender.ItemRenderGuiFactory",
-        acceptedMinecraftVersions = "[1.12, 1.12.10]",
-        clientSideOnly = true
+        modid = ItemRender.MODID, name = "Item Render Dark", version = "@VERSION@", guiFactory = "itemrender.ItemRenderGuiFactory", acceptedMinecraftVersions = "[1.12, 1.12.10]", clientSideOnly = true
 )
-public class ItemRenderMod
+public class ItemRender
 {
 
     static final String MODID = "itemrender";
@@ -53,7 +53,7 @@ public class ItemRenderMod
     public static float renderScale = 1.0F;
 
     @Mod.Instance(MODID)
-    public static ItemRenderMod instance;
+    public static ItemRender instance;
 
     public static Configuration cfg;
     public static boolean gl32_enabled = false;
@@ -64,6 +64,7 @@ public class ItemRenderMod
     public static int gridEntitySize = DEFAULT_GRID_ENTITY_SIZE;
     public static int playerSize = DEFAULT_PLAYER_SIZE;
     public static boolean debugMode = false;
+    public static IItemList itemList;
     public Logger log;
 
     @SideOnly(Side.CLIENT)
@@ -126,16 +127,22 @@ public class ItemRenderMod
     }
 
     @Mod.EventHandler
-    public void postInit(FMLInitializationEvent event)
+    public void postInit(FMLPostInitializationEvent event)
     {
-        if (event.getSide().isClient())
-            ItemList.updateList();
+        if (Loader.isModLoaded("jei"))
+        {
+            itemList = JEIItemList.INSTANCE;
+        }
+        else
+        {
+            itemList = new ItemList();
+        }
     }
 
     @SubscribeEvent
     public void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event)
     {
-        if (event.getModID().equals(ItemRenderMod.MODID))
+        if (event.getModID().equals(ItemRender.MODID))
             syncConfig();
     }
 }
