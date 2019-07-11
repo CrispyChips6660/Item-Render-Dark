@@ -9,12 +9,21 @@
  */
 package itemrender;
 
+import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.GLContext;
+
+import itemrender.export.ExportFormat;
 import itemrender.export.ExportUtils;
 import itemrender.export.IItemList;
 import itemrender.export.ItemList;
-import itemrender.jei.JEICompat;
 import itemrender.jei.JEICompat.JEIItemList;
-import itemrender.keybind.*;
+import itemrender.keybind.KeybindExport;
+import itemrender.keybind.KeybindRenderCurrentPlayer;
+import itemrender.keybind.KeybindRenderEntity;
+import itemrender.keybind.KeybindRenderInventoryBlock;
+import itemrender.keybind.KeybindToggleRender;
+import itemrender.keybind.KeybindWarn;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,17 +34,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GLContext;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Mod(
         modid = ItemRender.MODID, name = "Item Render Dark", version = "@VERSION@", guiFactory = "itemrender.ItemRenderGuiFactory", acceptedMinecraftVersions = "[1.12, 1.12.10]", clientSideOnly = true
@@ -64,6 +65,7 @@ public class ItemRender
     public static int gridEntitySize = DEFAULT_GRID_ENTITY_SIZE;
     public static int playerSize = DEFAULT_PLAYER_SIZE;
     public static boolean debugMode = false;
+    public static ExportFormat format = ExportFormat.MCMODCN;
     public static IItemList itemList;
     public Logger log;
 
@@ -78,6 +80,7 @@ public class ItemRender
         gridEntitySize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderEntityGrid", DEFAULT_GRID_ENTITY_SIZE, I18n.format("itemrender.cfg.gridentity")).getInt();
         playerSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderPlayer", DEFAULT_PLAYER_SIZE, I18n.format("itemrender.cfg.player")).getInt();
         debugMode = cfg.get(Configuration.CATEGORY_GENERAL, "DebugMode", false, I18n.format("itemrender.cfg.debug")).getBoolean();
+        format = ExportFormat.parse(cfg.getString("ExportFormat", Configuration.CATEGORY_GENERAL, "mcmodcn", "Supported values: mcmodcn, standard"));
         if (cfg.hasChanged())
             cfg.save();
     }
@@ -86,11 +89,6 @@ public class ItemRender
     public void preInit(FMLPreInitializationEvent event)
     {
         log = event.getModLog();
-        if (event.getSide().isServer())
-        {
-            log.error(I18n.format("itemrender.msg.clientonly"));
-            return;
-        }
         gl32_enabled = GLContext.getCapabilities().OpenGL32;
 
         // Config

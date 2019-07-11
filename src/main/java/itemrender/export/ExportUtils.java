@@ -109,6 +109,8 @@ public class ExportUtils
         ItemData itemData;
         MobData mobData;
 
+        boolean standard = ItemRender.format == ExportFormat.STANDARD;
+
         for (ItemStack itemStack : ItemRender.itemList.getItems())
         {
             if (itemStack == null)
@@ -116,7 +118,15 @@ public class ExportUtils
             if (!itemStack.getItem().getRegistryName().toString().matches(pattern))
                 continue;
 
-            itemData = new ItemData(itemStack);
+            if (standard)
+            {
+                itemData = new ItemDataStandard();
+            }
+            else
+            {
+                itemData = new ItemDataMCMOD();
+            }
+            itemData.setItem(itemStack);
             itemDataList.put(getItemOwner(itemStack), itemData);
         }
         for (EntityEntry entity : ForgeRegistries.ENTITIES)
@@ -140,8 +150,8 @@ public class ExportUtils
         for (ItemData data : itemDataList.values())
         {
             if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
-            data.setName(data.getItemStack().getDisplayName());
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItem().getTranslationKey() + "@" + data.getItem().getMetadata()));
+            data.setName(data.getItem().getDisplayName());
             data.setCreativeName(getCreativeTabName(data));
         }
         for (MobData data : mobDataList.values())
@@ -157,8 +167,8 @@ public class ExportUtils
         for (ItemData data : itemDataList.values())
         {
             if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItemStack().getTranslationKey() + "@" + data.getItemStack().getMetadata()));
-            data.setEnglishName(this.getLocalizedName(data.getItemStack()));
+                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItem().getTranslationKey() + "@" + data.getItem().getMetadata()));
+            data.setEnglishName(this.getLocalizedName(data.getItem()));
         }
 
         for (MobData data : mobDataList.values())
@@ -169,7 +179,8 @@ public class ExportUtils
         }
 
         File export;
-        File export1;
+        PrintWriter pw;
+        String comma = standard ? "," : "";
         for (String modid : itemDataList.keySet())
         {
             export = new File(mc.gameDir, String.format("export/" + modid + "_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
@@ -177,29 +188,40 @@ public class ExportUtils
                 export.getParentFile().mkdirs();
             if (!export.exists())
                 export.createNewFile();
-            PrintWriter pw = new PrintWriter(export, "UTF-8");
+            pw = new PrintWriter(export, "UTF-8");
 
+            boolean flag = false;
             for (ItemData data : itemDataList.get(modid))
             {
-                pw.println(gson.toJson(data));
+                if (flag)
+                {
+                    pw.println(comma);
+                }
+                flag = true;
+                pw.print(gson.toJson(data));
             }
             pw.close();
-
         }
         for (String modid : mobDataList.keySet())
         {
-            export1 = new File(mc.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
-            if (!export1.getParentFile().exists())
-                export1.getParentFile().mkdirs();
-            if (!export1.exists())
-                export1.createNewFile();
-            PrintWriter pw1 = new PrintWriter(export1, "UTF-8");
+            export = new File(mc.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+            if (!export.getParentFile().exists())
+                export.getParentFile().mkdirs();
+            if (!export.exists())
+                export.createNewFile();
+            pw = new PrintWriter(export, "UTF-8");
 
+            boolean flag = false;
             for (MobData data : mobDataList.get(modid))
             {
-                pw1.println(gson.toJson(data));
+                if (flag)
+                {
+                    pw.println(comma);
+                }
+                flag = true;
+                pw.println(gson.toJson(data));
             }
-            pw1.close();
+            pw.close();
         }
 
         refreshLanguage(mc, lang.getLanguageCode());
@@ -222,7 +244,7 @@ public class ExportUtils
 
     private String getCreativeTabName(ItemData data)
     {
-        CreativeTabs tab = data.getItemStack().getItem().getCreativeTab();
+        CreativeTabs tab = data.getItem().getItem().getCreativeTab();
         if (tab != null)
         {
             return I18n.format(tab.getTranslationKey());
