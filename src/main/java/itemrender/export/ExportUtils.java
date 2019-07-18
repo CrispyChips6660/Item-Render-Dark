@@ -13,6 +13,8 @@ package itemrender.export;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
@@ -96,7 +98,7 @@ public class ExportUtils
         return registryName == null ? "unnamed" : registryName.getNamespace();
     }
 
-    public void exportMods(String pattern) throws IOException
+    public void exportMods(Pattern pattern) throws IOException
     {
         Multimap<String, ItemData> itemDataList = LinkedListMultimap.create();
         Multimap<String, MobData> mobDataList = LinkedListMultimap.create();
@@ -115,7 +117,8 @@ public class ExportUtils
         {
             if (itemStack == null)
                 continue;
-            if (!itemStack.getItem().getRegistryName().toString().matches(pattern))
+            Matcher matcher = pattern.matcher(itemStack.getItem().getRegistryName().toString());
+            if (!matcher.find())
                 continue;
 
             if (standard)
@@ -133,7 +136,8 @@ public class ExportUtils
         {
             if (entity == null)
                 continue;
-            if (!entity.getRegistryName().toString().matches(pattern))
+            Matcher matcher = pattern.matcher(entity.getRegistryName().toString());
+            if (!matcher.find())
                 continue;
 
             mobData = new MobData(entity);

@@ -10,6 +10,12 @@
 
 package itemrender.keybind;
 
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+import org.lwjgl.input.Keyboard;
+
+import itemrender.export.ExportUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.resources.I18n;
@@ -20,11 +26,6 @@ import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
-import org.lwjgl.input.Keyboard;
-
-import itemrender.export.ExportUtils;
-
-import java.io.IOException;
 
 /**
  * Created by Meow J on 8/17/2015.
@@ -50,7 +51,7 @@ public class KeybindExport
         {
             try
             {
-                ExportUtils.INSTANCE.exportMods(".*");
+                ExportUtils.INSTANCE.exportMods(Pattern.compile(".*"));
             }
             catch (IOException e)
             {

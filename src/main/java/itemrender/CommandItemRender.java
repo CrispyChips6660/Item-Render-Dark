@@ -12,6 +12,8 @@ package itemrender;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import itemrender.export.ExportUtils;
 import net.minecraft.command.CommandBase;
@@ -84,9 +86,10 @@ public class CommandItemRender extends CommandBase implements IClientCommand
             }
             try
             {
-                ExportUtils.INSTANCE.exportMods(pattern);
+                Pattern pattern2 = Pattern.compile(pattern);
+                ExportUtils.INSTANCE.exportMods(pattern2);
             }
-            catch (IOException e)
+            catch (PatternSyntaxException | IOException e)
             {
                 e.printStackTrace();
                 throw new CommandException(e.toString());
