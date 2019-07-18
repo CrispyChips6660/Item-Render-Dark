@@ -10,9 +10,7 @@
 
 package itemrender.export;
 
-import itemrender.ItemRender;
-import net.minecraft.client.resources.I18n;
-import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraft.entity.EntityType;
 
 /**
  * Created by Meow J on 8/17/2015.
@@ -21,38 +19,35 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
  */
 public class MobData
 {
-    private String name;
-    private String Englishname;
-    private String mod;
-    private String registerName;
+    private String Name;
+    private String EnglishName;
+    //private String mod;
+    private String RegistryName;
     private String Icon;
-    private transient EntityEntry mob;
+    private transient EntityType mob;
 
-    public MobData(EntityEntry Entitymob)
+    public MobData(EntityType Entitymob)
     {
-
-        if (ItemRender.debugMode)
-            ItemRender.instance.log.info(I18n.format("itemrender.msg.processing", Entitymob.getName()));
-        name = null;
-        Englishname = null;
-        mod = Entitymob.getRegistryName().getNamespace();
-        registerName = Entitymob.getRegistryName().toString();
-        Icon = ExportUtils.INSTANCE.getEntityIcon(Entitymob);
+        Name = null;
+        EnglishName = null;
+        //mod = Entitymob.getRegistryName().getNamespace();
+        RegistryName = Entitymob.getRegistryName().toString();
+        Icon = ExportUtils.getEntityIcon(Entitymob);
         this.mob = Entitymob;
     }
 
-    public EntityEntry getMob()
+    public EntityType getMob()
     {
         return mob;
     }
 
     public void setName(String name)
     {
-        this.name = name;
+        this.Name = name;
     }
 
     public void setEnglishname(String name)
     {
-        this.Englishname = name;
+        this.EnglishName = name;
     }
 }

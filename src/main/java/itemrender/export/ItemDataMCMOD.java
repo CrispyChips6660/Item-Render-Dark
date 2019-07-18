@@ -10,13 +10,11 @@
 
 package itemrender.export;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
-import itemrender.ItemRender;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraft.util.ResourceLocation;
 
 /**
  * Created by Meow J on 8/17/2015.
@@ -25,45 +23,42 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public class ItemDataMCMOD implements ItemData
 {
-    private String name;
-    private String englishName;
-    private String registerName;
-    private int metadata;
-    private String OredictList;
-    private String CreativeTabName;
-    private String type;
-    private int maxStackSize;
-    private int maxDurability;
-    private String smallIcon;
-    private String largeIcon;
+    private String Name;
+    private String EnglishName;
+    private String RegistryName;
+    private String ItemTags;
+    private String BlockTags;
+    private String Group;
+    private String Type;
+    private int MaxStackSize;
+    private int MaxDurability;
+    private String SmallIcon;
+    private String LargeIcon;
     private transient ItemStack itemStack;
 
     @Override
     public void setItem(ItemStack itemStack)
     {
-        if (ItemRender.debugMode)
-            ItemRender.instance.log.info(I18n.format("itemrender.msg.processing", itemStack.getTranslationKey() + "@" + itemStack.getMetadata()));
-        name = null;
-        englishName = null;
-        registerName = itemStack.getItem().getRegistryName().toString();
-        metadata = itemStack.getMetadata();
-        List<String> list = new ArrayList<String>();
-        if (!itemStack.isEmpty())
+        RegistryName = itemStack.getItem().getRegistryName().toString();
+        ItemTags = itemStack.getItem().getTags().toString();
+        if (ItemTags.equals("[]"))
         {
-            for (int i : OreDictionary.getOreIDs(itemStack))
-            {
-                String ore = OreDictionary.getOreName(i);
-                list.add(ore);
-            }
-            OredictList = list.toString();
+            ItemTags = null;
         }
-        CreativeTabName = null;
-        type = ExportUtils.INSTANCE.getType(itemStack);
-        maxStackSize = itemStack.getMaxStackSize();
-        maxDurability = itemStack.getMaxDamage() + 1;
-        smallIcon = ExportUtils.INSTANCE.getSmallIcon(itemStack);
-        largeIcon = ExportUtils.INSTANCE.getLargeIcon(itemStack);
-
+        Block block = Block.getBlockFromItem(itemStack.getItem());
+        if (block != null)
+        {
+            Set<ResourceLocation> tags = block.getTags();
+            if (!tags.isEmpty())
+            {
+                BlockTags = tags.toString();
+            }
+        }
+        Type = ExportUtils.getType(itemStack);
+        MaxStackSize = itemStack.getMaxStackSize();
+        MaxDurability = itemStack.getMaxDamage() + 1;
+        SmallIcon = ExportUtils.getSmallIcon(itemStack);
+        LargeIcon = ExportUtils.getLargeIcon(itemStack);
         this.itemStack = itemStack;
     }
 
@@ -76,19 +71,19 @@ public class ItemDataMCMOD implements ItemData
     @Override
     public void setCreativeName(String name)
     {
-        this.CreativeTabName = name;
+        this.Group = name;
     }
 
     @Override
     public void setName(String name)
     {
-        this.name = name;
+        this.Name = name;
     }
 
     @Override
     public void setEnglishName(String englishName)
     {
-        this.englishName = englishName;
+        this.EnglishName = englishName;
     }
 
 }

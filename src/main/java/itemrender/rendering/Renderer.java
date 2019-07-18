@@ -10,23 +10,23 @@
 
 package itemrender.rendering;
 
-import itemrender.ItemRender;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.registry.EntityEntry;
+import java.io.File;
 
 import org.lwjgl.opengl.GL11;
 
-import java.io.File;
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
+
+import itemrender.ItemRender;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * Created by Jerrell Fang on 2/23/2015.
@@ -36,13 +36,13 @@ import java.io.File;
 public class Renderer
 {
 
-    public static void renderEntity(EntityLivingBase entity, FBOHelper fbo, String filenameSuffix, boolean renderPlayer)
+    public static void renderEntity(LivingEntity entity, FBOHelper fbo, String filenameSuffix, boolean renderPlayer)
     {
-        Minecraft minecraft = FMLClientHandler.instance().getClient();
+        Minecraft minecraft = Minecraft.getInstance();
         float scale = ItemRender.renderScale;
         fbo.begin();
 
-        AxisAlignedBB aabb = entity.getEntityBoundingBox();
+        AxisAlignedBB aabb = entity.getRenderBoundingBox();
         double minX = aabb.minX - entity.posX;
         double maxX = aabb.maxX - entity.posX;
         double minY = aabb.minY - entity.posY;
@@ -65,33 +65,33 @@ public class Renderer
         // Render entity
         GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();
-        GlStateManager.translate(0, 0, 50.0F);
+        GlStateManager.translatef(0, 0, 50.0F);
 
         if (renderPlayer)
-            GlStateManager.scale(-1F, 1F, 1F);
+            GlStateManager.scalef(-1F, 1F, 1F);
         else
-            GlStateManager.scale(-scale, scale, scale);
+            GlStateManager.scalef(-scale, scale, scale);
 
-        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+        GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
         float f2 = entity.renderYawOffset;
         float f3 = entity.rotationYaw;
         float f4 = entity.rotationPitch;
         float f5 = entity.prevRotationYawHead;
         float f6 = entity.rotationYawHead;
-        GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotatef(135.0F, 0.0F, 1.0F, 0.0F);
         RenderHelper.enableStandardItemLighting();
-        GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotatef(-135.0F, 0.0F, 1.0F, 0.0F);
 
-        GlStateManager.rotate((float) Math.toDegrees(Math.asin(Math.tan(Math.toRadians(30)))), 1.0F, 0.0F, 0.0F);
-        GlStateManager.rotate(-45, 0.0F, 1.0F, 0.0F);
+        GlStateManager.rotatef((float) Math.toDegrees(Math.asin(Math.tan(Math.toRadians(30)))), 1.0F, 0.0F, 0.0F);
+        GlStateManager.rotatef(-45, 0.0F, 1.0F, 0.0F);
 
         entity.renderYawOffset = (float) Math.atan(1 / 40.0F) * 20.0F;
         entity.rotationYaw = (float) Math.atan(1 / 40.0F) * 40.0F;
         entity.rotationPitch = -((float) Math.atan(1 / 40.0F)) * 20.0F;
         entity.rotationYawHead = entity.rotationYaw;
         entity.prevRotationYawHead = entity.rotationYaw;
-        GlStateManager.translate(0.0F, 0.0F, 0.0F);
-        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+        GlStateManager.translatef(0.0F, 0.0F, 0.0F);
+        EntityRendererManager rendermanager = minecraft.getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
         rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
@@ -104,22 +104,22 @@ public class Renderer
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableRescaleNormal();
-        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-        GlStateManager.disableTexture2D();
-        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+        GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+        GlStateManager.disableTexture();
+        GlStateManager.activeTexture(GLX.GL_TEXTURE0);
 
         GlStateManager.matrixMode(GL11.GL_PROJECTION);
         GlStateManager.popMatrix();
 
         fbo.end();
-        String name = EntityList.getEntityString(entity) == null ? entity.getName() : EntityList.getEntityString(entity);
+        String name = entity.getType().getRegistryName().getPath();
         fbo.saveToFile(new File(minecraft.gameDir, renderPlayer ? "rendered/player.png" : String.format("rendered/entity_%s%s.png", name.replaceAll("[^A-Za-z0-9()\\[\\]]", ""), filenameSuffix)));
         fbo.restoreTexture();
     }
 
-    public static void renderItem(ItemStack itemStack, FBOHelper fbo, String filenameSuffix, RenderItem itemRenderer)
+    public static void renderItem(ItemStack itemStack, FBOHelper fbo, String filenameSuffix, ItemRenderer itemRenderer)
     {
-        Minecraft minecraft = FMLClientHandler.instance().getClient();
+        Minecraft minecraft = Minecraft.getInstance();
         float scale = ItemRender.renderScale;
         fbo.begin();
 
@@ -134,8 +134,8 @@ public class Renderer
         GlStateManager.enableColorMaterial();
         GlStateManager.enableLighting();
 
-        GlStateManager.translate(8 * (1 - scale), 8 * (1 - scale), 0);
-        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.translatef(8 * (1 - scale), 8 * (1 - scale), 0);
+        GlStateManager.scalef(scale, scale, scale);
 
         itemRenderer.renderItemIntoGUI(itemStack, 0, 0);
 
@@ -146,11 +146,11 @@ public class Renderer
         GL11.glPopMatrix();
 
         fbo.end();
-        fbo.saveToFile(new File(minecraft.gameDir, String.format("rendered/item_%s_%d%s.png", itemStack.getTranslationKey().replaceAll("[^A-Za-z0-9()\\[\\]]", ""), itemStack.getItemDamage(), filenameSuffix)));
+        fbo.saveToFile(new File(minecraft.gameDir, String.format("rendered/item_%s_%s.png", itemStack.getTranslationKey().replaceAll("[^A-Za-z0-9()\\[\\]]", ""), filenameSuffix)));
         fbo.restoreTexture();
     }
 
-    public static String getItemBase64(ItemStack itemStack, FBOHelper fbo, RenderItem itemRenderer)
+    public static String getItemBase64(ItemStack itemStack, FBOHelper fbo, ItemRenderer itemRenderer)
     {
         String base64;
         float scale = ItemRender.renderScale;
@@ -167,8 +167,8 @@ public class Renderer
         GlStateManager.enableColorMaterial();
         GlStateManager.enableLighting();
 
-        GlStateManager.translate(8 * (1 - scale), 8 * (1 - scale), 0);
-        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.translatef(8 * (1 - scale), 8 * (1 - scale), 0);
+        GlStateManager.scalef(scale, scale, scale);
 
         itemRenderer.renderItemIntoGUI(itemStack, 0, 0);
 
@@ -184,20 +184,21 @@ public class Renderer
         return base64;
     }
 
-    public static String getEntityBase64(EntityEntry Entitymob, FBOHelper fbo)
+    public static String getEntityBase64(EntityType Entitymob, FBOHelper fbo)
     {
         String base64;
-        Minecraft minecraft = FMLClientHandler.instance().getClient();
-        if (!(Entitymob.newInstance(minecraft.world) instanceof EntityLivingBase))
+        Minecraft minecraft = Minecraft.getInstance();
+        Entity entity = Entitymob.create(minecraft.world);
+        if (!(entity instanceof LivingEntity))
         {
-            return "";
+            return null;
         }
         else
         {
+            LivingEntity living = (LivingEntity) entity;
             float scale = ItemRender.renderScale;
             fbo.begin();
-            EntityLivingBase entity = (EntityLivingBase) Entitymob.newInstance(minecraft.world);
-            AxisAlignedBB aabb = entity.getEntityBoundingBox();
+            AxisAlignedBB aabb = living.getRenderBoundingBox();
             double minX = aabb.minX - entity.posX;
             double maxX = aabb.maxX - entity.posX;
             double minY = aabb.minY - entity.posY;
@@ -220,44 +221,44 @@ public class Renderer
             // Render entity
             GlStateManager.enableColorMaterial();
             GlStateManager.pushMatrix();
-            GlStateManager.translate(0, 0, 50.0F);
-            GlStateManager.scale(-scale, scale, scale);
+            GlStateManager.translatef(0, 0, 50.0F);
+            GlStateManager.scalef(-scale, scale, scale);
 
-            GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-            float f2 = entity.renderYawOffset;
-            float f3 = entity.rotationYaw;
-            float f4 = entity.rotationPitch;
-            float f5 = entity.prevRotationYawHead;
-            float f6 = entity.rotationYawHead;
-            GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotatef(180.0F, 0.0F, 0.0F, 1.0F);
+            float f2 = living.renderYawOffset;
+            float f3 = living.rotationYaw;
+            float f4 = living.rotationPitch;
+            float f5 = living.prevRotationYawHead;
+            float f6 = living.rotationYawHead;
+            GlStateManager.rotatef(135.0F, 0.0F, 1.0F, 0.0F);
             RenderHelper.enableStandardItemLighting();
-            GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotatef(-135.0F, 0.0F, 1.0F, 0.0F);
 
-            GlStateManager.rotate((float) Math.toDegrees(Math.asin(Math.tan(Math.toRadians(30)))), 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotate(-45, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotatef((float) Math.toDegrees(Math.asin(Math.tan(Math.toRadians(30)))), 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotatef(-45, 0.0F, 1.0F, 0.0F);
 
-            entity.renderYawOffset = (float) Math.atan(1 / 40.0F) * 20.0F;
-            entity.rotationYaw = (float) Math.atan(1 / 40.0F) * 40.0F;
-            entity.rotationPitch = -((float) Math.atan(1 / 40.0F)) * 20.0F;
-            entity.rotationYawHead = entity.rotationYaw;
-            entity.prevRotationYawHead = entity.rotationYaw;
-            GlStateManager.translate(0.0F, 0.0F, 0.0F);
-            RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+            living.renderYawOffset = (float) Math.atan(1 / 40.0F) * 20.0F;
+            living.rotationYaw = (float) Math.atan(1 / 40.0F) * 40.0F;
+            living.rotationPitch = -((float) Math.atan(1 / 40.0F)) * 20.0F;
+            living.rotationYawHead = entity.rotationYaw;
+            living.prevRotationYawHead = entity.rotationYaw;
+            GlStateManager.translatef(0.0F, 0.0F, 0.0F);
+            EntityRendererManager rendermanager = minecraft.getRenderManager();
             rendermanager.setPlayerViewY(180.0F);
             rendermanager.setRenderShadow(false);
-            rendermanager.renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
+            rendermanager.renderEntity(living, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, true);
             rendermanager.setRenderShadow(true);
-            entity.renderYawOffset = f2;
-            entity.rotationYaw = f3;
-            entity.rotationPitch = f4;
-            entity.prevRotationYawHead = f5;
-            entity.rotationYawHead = f6;
+            living.renderYawOffset = f2;
+            living.rotationYaw = f3;
+            living.rotationPitch = f4;
+            living.prevRotationYawHead = f5;
+            living.rotationYawHead = f6;
             GlStateManager.popMatrix();
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableRescaleNormal();
-            GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GlStateManager.disableTexture2D();
-            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            GlStateManager.activeTexture(GLX.GL_TEXTURE1);
+            GlStateManager.disableTexture();
+            GlStateManager.activeTexture(GLX.GL_TEXTURE0);
 
             GlStateManager.matrixMode(GL11.GL_PROJECTION);
             GlStateManager.popMatrix();

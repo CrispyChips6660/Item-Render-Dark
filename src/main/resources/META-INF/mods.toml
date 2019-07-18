@@ -1,0 +1,16 @@
+modLoader="javafml"
+loaderVersion="[26,)"
+[[mods]]
+modId="itemrender"
+version="${file.jarVersion}"
+displayName="Item Render Dark"
+authors="Snownee"
+description='''
+'''
+
+[[dependencies.itemrender]]
+    modId="jei"
+    mandatory=true
+    versionRange="[6,)"
+    ordering="BEFORE"
+    side="CLIENT"

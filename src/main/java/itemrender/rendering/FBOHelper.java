@@ -9,22 +9,24 @@
  */
 package itemrender.rendering;
 
-import itemrender.ItemRender;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import org.apache.commons.codec.binary.Base64;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTFramebufferObject;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.util.glu.GLU;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Base64;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTFramebufferObject;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+
+import itemrender.ItemRender;
+import net.minecraft.client.renderer.GLAllocation;
 
 public final class FBOHelper
 {
@@ -62,8 +64,8 @@ public final class FBOHelper
         EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, framebufferID);
 
         // Remember viewport info.
-        lastViewport = GLAllocation.createDirectIntBuffer(16);
-        GL11.glGetInteger(GL11.GL_VIEWPORT, lastViewport);
+        lastViewport = GLAllocation.createDirectByteBuffer(16 << 2).asIntBuffer();
+        GL11.glGetIntegerv(GL11.GL_VIEWPORT, lastViewport);
         GL11.glViewport(0, 0, renderTextureSize, renderTextureSize);
 
         GlStateManager.matrixMode(GL11.GL_MODELVIEW);
@@ -74,10 +76,10 @@ public final class FBOHelper
         lastTexture = GL11.glGetInteger(GL11.GL_TEXTURE_BINDING_2D);
 
         GlStateManager.clearColor(0, 0, 0, 0);
-        GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GlStateManager.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, false);
 
         GlStateManager.cullFace(GlStateManager.CullFace.FRONT);
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
         GlStateManager.enableLighting();
         GlStateManager.enableRescaleNormal();
 
@@ -89,7 +91,7 @@ public final class FBOHelper
         checkGlErrors("FBO End Init");
 
         GlStateManager.cullFace(GlStateManager.CullFace.BACK);
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.disableRescaleNormal();
         GlStateManager.disableLighting();
 
@@ -232,10 +234,8 @@ public final class FBOHelper
 
         if (error != 0)
         {
-            String error_name = GLU.gluErrorString(error);
-            ItemRender.instance.log.error("########## GL ERROR ##########");
-            ItemRender.instance.log.error("@ " + message);
-            ItemRender.instance.log.error(error + ": " + error_name);
+            ItemRender.logger.error("########## GL ERROR ##########");
+            ItemRender.logger.error("@ " + message + ": " + error);
         }
     }
 }

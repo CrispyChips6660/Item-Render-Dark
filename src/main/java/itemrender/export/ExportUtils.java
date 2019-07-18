@@ -22,23 +22,21 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import itemrender.ItemRender;
+import itemrender.ItemRenderConfig;
 import itemrender.rendering.FBOHelper;
 import itemrender.rendering.Renderer;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.Language;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.entity.EntityType;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.client.resource.VanillaResourceType;
-import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Created by Meow J on 8/17/2015.
@@ -47,63 +45,53 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
  */
 public class ExportUtils
 {
-    public static ExportUtils INSTANCE;
+    // Hardcoded value for mcmod.cn only, don't change this unless the website updates
+    private static FBOHelper fboSmall = new FBOHelper(32);
+    private static FBOHelper fboLarge = new FBOHelper(128);
+    private static FBOHelper fboEntity = new FBOHelper(200);
+    private static ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 
-    private FBOHelper fboSmall;
-    private FBOHelper fboLarge;
-    private FBOHelper fboEntity;
-    private RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
-
-    public ExportUtils()
+    private ExportUtils()
     {
-        // Hardcoded value for mcmod.cn only, don't change this unless the website updates
-        fboSmall = new FBOHelper(32);
-        fboLarge = new FBOHelper(128);
-        fboEntity = new FBOHelper(200);
     }
 
-    public String getLocalizedName(ItemStack itemStack)
+    public static String getType(ItemStack itemStack)
     {
-        return itemStack.getDisplayName();
+        return Block.getBlockFromItem(itemStack.getItem()) != null ? "Block" : "Item";
     }
 
-    public String getType(ItemStack itemStack)
-    {
-        return (itemStack.getItem() instanceof ItemBlock) ? "Block" : "Item";
-    }
-
-    public String getSmallIcon(ItemStack itemStack)
+    public static String getSmallIcon(ItemStack itemStack)
     {
         return Renderer.getItemBase64(itemStack, fboSmall, itemRenderer);
     }
 
-    public String getLargeIcon(ItemStack itemStack)
+    public static String getLargeIcon(ItemStack itemStack)
     {
         return Renderer.getItemBase64(itemStack, fboLarge, itemRenderer);
     }
 
-    public String getEntityIcon(EntityEntry Entitymob)
+    public static String getEntityIcon(EntityType Entitymob)
     {
         return Renderer.getEntityBase64(Entitymob, fboEntity);
     }
 
-    private String getItemOwner(ItemStack itemStack)
+    private static String getItemOwner(ItemStack itemStack)
     {
         return itemStack.getItem().getCreatorModId(itemStack);
     }
 
-    private String getEntityOwner(EntityEntry Entitymob)
+    private static String getEntityOwner(EntityType Entitymob)
     {
         ResourceLocation registryName = Entitymob.getRegistryName();
         return registryName == null ? "unnamed" : registryName.getNamespace();
     }
 
-    public void exportMods(Pattern pattern) throws IOException
+    public static int exportMods(Pattern pattern) throws IOException
     {
+        int count = 0;
         Multimap<String, ItemData> itemDataList = LinkedListMultimap.create();
         Multimap<String, MobData> mobDataList = LinkedListMultimap.create();
-        long ms = Minecraft.getSystemTime();
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
 
         Language lang = mc.getLanguageManager().getCurrentLanguage();
 
@@ -111,7 +99,7 @@ public class ExportUtils
         ItemData itemData;
         MobData mobData;
 
-        boolean standard = ItemRender.format == ExportFormat.STANDARD;
+        boolean standard = ItemRenderConfig.format.get() == ExportFormat.STANDARD;
 
         for (ItemStack itemStack : ItemRender.itemList.getItems())
         {
@@ -132,7 +120,7 @@ public class ExportUtils
             itemData.setItem(itemStack);
             itemDataList.put(getItemOwner(itemStack), itemData);
         }
-        for (EntityEntry entity : ForgeRegistries.ENTITIES)
+        for (EntityType entity : ForgeRegistries.ENTITIES)
         {
             if (entity == null)
                 continue;
@@ -144,42 +132,32 @@ public class ExportUtils
             mobDataList.put(getEntityOwner(entity), mobData);
         }
 
-        boolean reloadstate = ForgeModContainer.selectiveResourceReloadEnabled;
-        boolean unicodeState = mc.fontRenderer.getUnicodeFlag();
-        ForgeModContainer.selectiveResourceReloadEnabled = true;
+        //boolean reloadstate = ForgeMod.selectiveResourceReloadEnabled;
+        //ForgeMod.selectiveResourceReloadEnabled = true;
 
         // Since refreshResources takes a long time, only refresh once for all the items
-        refreshLanguage(mc, "zh_CN");
+        refreshLanguage(mc, "zh_cn");
 
         for (ItemData data : itemDataList.values())
         {
-            if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getItem().getTranslationKey() + "@" + data.getItem().getMetadata()));
-            data.setName(data.getItem().getDisplayName());
+            data.setName(data.getItem().getDisplayName().getString());
             data.setCreativeName(getCreativeTabName(data));
         }
         for (MobData data : mobDataList.values())
         {
-            if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addCN", data.getMob().getRegistryName()));
-            data.setName(I18n.format("entity." + data.getMob().getName() + ".name"));
+            data.setName(data.getMob().getName().getString());
         }
 
-        mc.fontRenderer.setUnicodeFlag(false);
-        refreshLanguage(mc, "en_US");
+        refreshLanguage(mc, "en_us");
 
         for (ItemData data : itemDataList.values())
         {
-            if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getItem().getTranslationKey() + "@" + data.getItem().getMetadata()));
-            data.setEnglishName(this.getLocalizedName(data.getItem()));
+            data.setEnglishName(data.getItem().getDisplayName().getString());
         }
 
         for (MobData data : mobDataList.values())
         {
-            if (ItemRender.debugMode)
-                ItemRender.instance.log.info(I18n.format("itemrender.msg.addEN", data.getMob().getRegistryName()));
-            data.setEnglishname(new TextComponentTranslation("entity." + data.getMob().getName() + ".name", new Object[0]).getFormattedText());
+            data.setEnglishname(data.getMob().getName().getString());
         }
 
         File export;
@@ -202,6 +180,7 @@ public class ExportUtils
                     pw.println(comma);
                 }
                 flag = true;
+                ++count;
                 pw.print(gson.toJson(data));
             }
             pw.close();
@@ -223,17 +202,16 @@ public class ExportUtils
                     pw.println(comma);
                 }
                 flag = true;
-                pw.println(gson.toJson(data));
+                ++count;
+                pw.print(gson.toJson(data));
             }
             pw.close();
         }
 
-        refreshLanguage(mc, lang.getLanguageCode());
-        ForgeModContainer.selectiveResourceReloadEnabled = reloadstate;
-        mc.fontRenderer.setUnicodeFlag(unicodeState);
+        refreshLanguage(mc, lang.getCode());
+        //ForgeMod.selectiveResourceReloadEnabled = reloadstate;
 
-        String output = String.format("导出完毕。耗时%ss", (Minecraft.getSystemTime() - ms) / 1000f);
-        mc.player.sendMessage(new TextComponentString(output));
+        return count;
     }
 
     private static void refreshLanguage(Minecraft mc, String lang)
@@ -242,20 +220,21 @@ public class ExportUtils
         {
             mc.getLanguageManager().setCurrentLanguage(new Language(lang, "", "", false));
             mc.gameSettings.language = lang;
-            FMLClientHandler.instance().refreshResources(VanillaResourceType.LANGUAGES);
+            mc.getLanguageManager().onResourceManagerReload(mc.getResourceManager());
+            //FMLClientHandler.instance().refreshResources(VanillaResourceType.LANGUAGES);
         }
     }
 
-    private String getCreativeTabName(ItemData data)
+    private static String getCreativeTabName(ItemData data)
     {
-        CreativeTabs tab = data.getItem().getItem().getCreativeTab();
+        ItemGroup tab = data.getItem().getItem().getGroup();
         if (tab != null)
         {
             return I18n.format(tab.getTranslationKey());
         }
         else
         {
-            return "";
+            return null;
         }
     }
 }

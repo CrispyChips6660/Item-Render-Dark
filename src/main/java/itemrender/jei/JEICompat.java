@@ -3,26 +3,35 @@ package itemrender.jei;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import itemrender.ItemRender;
 import itemrender.export.IItemList;
-import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.ingredients.IIngredientRegistry;
-import mezz.jei.api.ingredients.VanillaTypes;
+import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.helpers.IJeiHelpers;
+import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.runtime.IIngredientManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
-@JEIPlugin
+@JeiPlugin
 public class JEICompat implements IModPlugin
 {
     private static IJeiHelpers helper;
-    private static IIngredientRegistry ingredients;
+    private static IIngredientManager ingredients;
+    public static final ResourceLocation UID = new ResourceLocation(ItemRender.MODID, "export");
 
     @Override
-    public void register(IModRegistry registry)
+    public void registerRecipes(IRecipeRegistration registration)
     {
-        helper = registry.getJeiHelpers();
-        ingredients = registry.getIngredientRegistry();
+        helper = registration.getJeiHelpers();
+        ingredients = registration.getIngredientManager();
+    }
+
+    @Override
+    public ResourceLocation getPluginUid()
+    {
+        return UID;
     }
 
     public static class JEIItemList implements IItemList
@@ -36,7 +45,8 @@ public class JEICompat implements IModPlugin
         @Override
         public List<ItemStack> getItems()
         {
-            return ingredients.getAllIngredients(VanillaTypes.ITEM).stream().filter(s -> !helper.getIngredientBlacklist().isIngredientBlacklisted(s)).collect(Collectors.toList());
+            // TODO: blacklist
+            return ingredients.getAllIngredients(VanillaTypes.ITEM).stream().collect(Collectors.toList());
         }
     }
 }
