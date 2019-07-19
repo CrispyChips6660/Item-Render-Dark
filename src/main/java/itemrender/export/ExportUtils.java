@@ -35,7 +35,6 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Util;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -101,12 +100,14 @@ public class ExportUtils
 
         boolean standard = ItemRenderConfig.format.get() == ExportFormat.STANDARD;
 
+        boolean all = pattern.pattern().equals(".*") || pattern.pattern().equals(".+");
+
+        Renderer.beginItem();
         for (ItemStack itemStack : ItemRender.itemList.getItems())
         {
             if (itemStack == null)
                 continue;
-            Matcher matcher = pattern.matcher(itemStack.getItem().getRegistryName().toString());
-            if (!matcher.find())
+            if (!all && !pattern.matcher(itemStack.getItem().getRegistryName().toString()).find())
                 continue;
 
             if (standard)
@@ -120,6 +121,7 @@ public class ExportUtils
             itemData.setItem(itemStack);
             itemDataList.put(getItemOwner(itemStack), itemData);
         }
+        Renderer.endItem();
         for (EntityType entity : ForgeRegistries.ENTITIES)
         {
             if (entity == null)

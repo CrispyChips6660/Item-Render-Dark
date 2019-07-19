@@ -22,6 +22,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -150,11 +153,9 @@ public class Renderer
         fbo.restoreTexture();
     }
 
-    public static String getItemBase64(ItemStack itemStack, FBOHelper fbo, ItemRenderer itemRenderer)
+    public static void beginItem()
     {
-        String base64;
         float scale = ItemRender.renderScale;
-        fbo.begin();
 
         GlStateManager.matrixMode(GL11.GL_PROJECTION);
         GlStateManager.pushMatrix();
@@ -170,16 +171,40 @@ public class Renderer
         GlStateManager.translatef(8 * (1 - scale), 8 * (1 - scale), 0);
         GlStateManager.scalef(scale, scale, scale);
 
-        itemRenderer.renderItemIntoGUI(itemStack, 0, 0);
+        GlStateManager.pushMatrix();
+        Minecraft.getInstance().textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.enableAlphaTest();
+        GlStateManager.alphaFunc(516, 0.1F);
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    public static void endItem()
+    {
+        GlStateManager.disableAlphaTest();
+        GlStateManager.disableRescaleNormal();
+        GlStateManager.disableLighting();
+        GlStateManager.popMatrix();
+        Minecraft.getInstance().textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 
         GlStateManager.disableLighting();
         RenderHelper.disableStandardItemLighting();
 
         GlStateManager.matrixMode(GL11.GL_PROJECTION);
         GL11.glPopMatrix();
+    }
 
+    public static String getItemBase64(ItemStack itemStack, FBOHelper fbo, ItemRenderer itemRenderer)
+    {
+        fbo.begin();
+        itemRenderer.renderItemIntoGUI(itemStack, 0, 0);
         fbo.end();
-        base64 = fbo.getBase64();
+
+        String base64 = fbo.getBase64();
         fbo.restoreTexture();
         return base64;
     }
