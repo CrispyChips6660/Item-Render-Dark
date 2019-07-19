@@ -10,6 +10,7 @@
 
 package itemrender.export;
 
+import java.util.Objects;
 import java.util.Set;
 
 import net.minecraft.block.Block;
@@ -83,7 +84,14 @@ public class ItemDataMCMOD implements ItemData
     @Override
     public void setEnglishName(String englishName)
     {
-        this.EnglishName = englishName;
+        if (Objects.equals(Name, englishName))
+        {
+            this.Name = englishName;
+        }
+        else
+        {
+            this.EnglishName = englishName;
+        }
     }
 
 }

@@ -8,7 +8,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import itemrender.export.ExportUtils;
 import net.minecraft.client.Minecraft;
@@ -19,16 +18,13 @@ import net.minecraft.util.text.StringTextComponent;
 
 public class ItemRenderCommand
 {
-    private static final SimpleCommandExceptionType WRONG_PATTERN_EXCEPTION = new SimpleCommandExceptionType(new StringTextComponent("Ä£Ê½Æ÷½âÎöÊ§°Ü"));
-    private static final SimpleCommandExceptionType IO_EXCEPTION = new SimpleCommandExceptionType(new StringTextComponent("ÎÄ¼þ´´½¨Ê§°Ü"));
-
     public static void register(CommandDispatcher<CommandSource> dispatcher)
     {
         /* off */
         dispatcher.register(Commands.literal(ItemRender.MODID)
                 .then(Commands.literal("export")
                         .executes(ctx -> export(ctx.getSource(), ".+"))
-                        .then(Commands.argument("pattern", StringArgumentType.string())
+                        .then(Commands.argument("pattern", StringArgumentType.greedyString())
                                 .executes(ctx -> export(ctx.getSource(), StringArgumentType.getString(ctx, "pattern")))))
                 .then(Commands.literal("scale")
                         .executes(ctx -> getScale(ctx.getSource()))
@@ -40,13 +36,13 @@ public class ItemRenderCommand
     private static int setScale(CommandSource source, float scale)
     {
         ItemRender.renderScale = scale;
-        source.sendFeedback(new StringTextComponent(String.format("Ëõ·Å£º%s", scale)), true);
+        source.sendFeedback(new StringTextComponent(String.format("ç¼©æ”¾ï¼š%s", scale)), true);
         return 0;
     }
 
     private static int getScale(CommandSource source)
     {
-        source.sendFeedback(new StringTextComponent(String.format("Ä¿Ç°Ëõ·Å£º%s", ItemRender.renderScale)), true);
+        source.sendFeedback(new StringTextComponent(String.format("ç›®å‰ç¼©æ”¾ï¼š%s", ItemRender.renderScale)), true);
         return 0;
     }
 
@@ -60,83 +56,23 @@ public class ItemRenderCommand
                 int r = ExportUtils.exportMods(p);
                 if (r == 0)
                 {
-                    source.sendErrorMessage(new StringTextComponent("Î´·¢ÏÖÆ¥ÅäµÄÌõÄ¿"));
+                    source.sendErrorMessage(new StringTextComponent("æœªå‘çŽ°åŒ¹é…çš„æ¡ç›®"));
                 }
                 else
                 {
-                    source.sendFeedback(new StringTextComponent(String.format("µ¼³öÍê±Ï¡£ºÄÊ±%ss", (Util.milliTime() - ms) / 1000f)), true);
-                    source.sendFeedback(new StringTextComponent(String.format("³É¹¦µ¼³ö%dÌõÊý¾Ý", r)), true);
+                    source.sendFeedback(new StringTextComponent(String.format("å¯¼å‡ºå®Œæ¯•ã€‚è€—æ—¶%ss", (Util.milliTime() - ms) / 1000f)), true);
+                    source.sendFeedback(new StringTextComponent(String.format("æˆåŠŸå¯¼å‡º%dæ¡æ•°æ®", r)), true);
                 }
             }
             catch (PatternSyntaxException e)
             {
-                source.sendErrorMessage(new StringTextComponent("Ä£Ê½Æ÷½âÎöÊ§°Ü"));
+                source.sendErrorMessage(new StringTextComponent("æ¨¡å¼å™¨è§£æžå¤±è´¥"));
             }
             catch (IOException e)
             {
-                source.sendErrorMessage(new StringTextComponent("ÎÄ¼þ´´½¨Ê§°Ü"));
+                source.sendErrorMessage(new StringTextComponent("æ–‡ä»¶åˆ›å»ºå¤±è´¥"));
             }
         });
         return 0;
     }
-
-    //    @Override
-    //    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-    //    {
-    //        if (args.length == 0)
-    //        {
-    //            throw new CommandException("/itemrender scale|export ...");
-    //        }
-    //        else if (args[0].equalsIgnoreCase("scale"))
-    //        {
-    //            if (args.length == 2)
-    //            {
-    //                float value = Float.valueOf(args[1]);
-    //                if (value > 0.0F && value <= 2.0F)
-    //                {
-    //                    ItemRender.renderScale = Float.valueOf(args[1]);
-    //                    sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "Scale: " + value));
-    //                }
-    //                else
-    //                {
-    //                    sender.sendMessage(new TextComponentString(TextFormatting.RED + "Scale Range: (0.0, 2.0]"));
-    //                }
-    //            }
-    //            else
-    //            {
-    //                sender.sendMessage(new TextComponentString(TextFormatting.RED + "/itemrender scale [value]"));
-    //                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Execute this command to control entity/item rendering scale."));
-    //                sender.sendMessage(new TextComponentString(TextFormatting.AQUA + "Scale Range: (0.0, 2.0]. Default: 1.0. Current: " + ItemRender.renderScale));
-    //            }
-    //        }
-    //        else if (args[0].equalsIgnoreCase("export"))
-    //        {
-    //            String pattern;
-    //            if (args.length == 1)
-    //            {
-    //                pattern = ".*";
-    //            }
-    //            else if (args.length == 2)
-    //            {
-    //                pattern = args[1];
-    //            }
-    //            else
-    //            {
-    //                throw new CommandException("/itemrender export [regex pattern]");
-    //            }
-    //            try
-    //            {
-    //                Pattern pattern2 = Pattern.compile(pattern);
-    //                ExportUtils.INSTANCE.exportMods(pattern2);
-    //            }
-    //            catch (PatternSyntaxException | IOException e)
-    //            {
-    //                e.printStackTrace();
-    //                throw new CommandException(e.toString());
-    //            }
-    //        }
-    //        else
-    //            throw new CommandException("/itemrender scale|export ...");
-    //    }
-
 }

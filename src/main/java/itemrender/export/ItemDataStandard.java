@@ -11,6 +11,7 @@
 package itemrender.export;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.minecraft.block.Block;
@@ -84,7 +85,14 @@ public class ItemDataStandard implements ItemData
     @Override
     public void setEnglishName(String englishName)
     {
-        this.EnglishName = englishName;
+        if (Objects.equals(Name, englishName))
+        {
+            this.Name = englishName;
+        }
+        else
+        {
+            this.EnglishName = englishName;
+        }
     }
 
 }
