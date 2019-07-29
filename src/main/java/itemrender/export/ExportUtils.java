@@ -13,10 +13,13 @@ package itemrender.export;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.regex.Matcher;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,7 +37,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -87,6 +89,26 @@ public class ExportUtils
 
     public static int exportMods(Pattern pattern) throws IOException
     {
+        List<ItemStack> items = ItemRender.itemList.getItems().stream().filter(Objects::nonNull).collect(Collectors.toList());
+        boolean all = pattern.pattern().equals(".*") || pattern.pattern().equals(".+");
+        if (!all)
+        {
+            items.removeIf(item -> {
+                return !pattern.matcher(item.getItem().getRegistryName().toString()).find();
+            });
+        }
+        List<EntityType> entityTypes = Lists.newArrayList(ForgeRegistries.ENTITIES);
+        if (!all)
+        {
+            entityTypes.removeIf(entityType -> {
+                return !pattern.matcher(entityType.getRegistryName().toString()).find();
+            });
+        }
+        return exportMods(items, entityTypes);
+    }
+
+    public static int exportMods(List<ItemStack> items, List<EntityType> entityTypes) throws IOException
+    {
         int count = 0;
         Multimap<String, ItemData> itemDataList = LinkedListMultimap.create();
         Multimap<String, MobData> mobDataList = LinkedListMultimap.create();
@@ -100,16 +122,9 @@ public class ExportUtils
 
         boolean standard = ItemRenderConfig.format.get() == ExportFormat.STANDARD;
 
-        boolean all = pattern.pattern().equals(".*") || pattern.pattern().equals(".+");
-
         Renderer.beginItem();
-        for (ItemStack itemStack : ItemRender.itemList.getItems())
+        for (ItemStack itemStack : items)
         {
-            if (itemStack == null)
-                continue;
-            if (!all && !pattern.matcher(itemStack.getItem().getRegistryName().toString()).find())
-                continue;
-
             if (standard)
             {
                 itemData = new ItemDataStandard();
@@ -122,14 +137,8 @@ public class ExportUtils
             itemDataList.put(getItemOwner(itemStack), itemData);
         }
         Renderer.endItem();
-        for (EntityType entity : ForgeRegistries.ENTITIES)
+        for (EntityType entity : entityTypes)
         {
-            if (entity == null)
-                continue;
-            Matcher matcher = pattern.matcher(entity.getRegistryName().toString());
-            if (!matcher.find())
-                continue;
-
             mobData = new MobData(entity);
             mobDataList.put(getEntityOwner(entity), mobData);
         }

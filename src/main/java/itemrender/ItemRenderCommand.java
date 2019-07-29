@@ -1,9 +1,12 @@
 package itemrender;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.google.common.collect.Lists;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -23,9 +26,47 @@ public class ItemRenderCommand
         /* off */
         dispatcher.register(Commands.literal(ItemRender.MODID)
                 .then(Commands.literal("export")
-                        .executes(ctx -> export(ctx.getSource(), ".+"))
+                        .executes(ctx -> export(ctx.getSource(), s -> {
+                            Pattern p = Pattern.compile(".*");
+                            try
+                            {
+                                return ExportUtils.exportMods(p);
+                            }
+                            catch (IOException e)
+                            {
+                                s.sendErrorMessage(new StringTextComponent("文件创建失败"));
+                                return 0;
+                            }
+                        }))
                         .then(Commands.argument("pattern", StringArgumentType.greedyString())
-                                .executes(ctx -> export(ctx.getSource(), StringArgumentType.getString(ctx, "pattern")))))
+                                .executes(ctx -> export(ctx.getSource(), s -> {
+                                    try
+                                    {
+                                        Pattern p = Pattern.compile(StringArgumentType.getString(ctx, "pattern"));
+                                        return ExportUtils.exportMods(p);
+                                    }
+                                    catch (PatternSyntaxException e)
+                                    {
+                                        s.sendErrorMessage(new StringTextComponent("模式器解析失败"));
+                                    }
+                                    catch (IOException e)
+                                    {
+                                        s.sendErrorMessage(new StringTextComponent("文件创建失败"));
+                                    }
+                                    return 0;
+                                }))))
+                .then(Commands.literal("exportHand")
+                        .executes(ctx -> export(ctx.getSource(), s -> {
+                            try
+                            {
+                                return ExportUtils.exportMods(Lists.newArrayList(Minecraft.getInstance().player.getHeldItemMainhand()), Collections.EMPTY_LIST);
+                            }
+                            catch (IOException e)
+                            {
+                                s.sendErrorMessage(new StringTextComponent("文件创建失败"));
+                                return 0;
+                            }
+                        })))
                 .then(Commands.literal("scale")
                         .executes(ctx -> getScale(ctx.getSource()))
                         .then(Commands.argument("scale", FloatArgumentType.floatArg(0.1f, 2))
@@ -46,31 +87,19 @@ public class ItemRenderCommand
         return 0;
     }
 
-    private static int export(CommandSource source, String pattern) throws CommandSyntaxException
+    private static int export(CommandSource source, Function<CommandSource, Integer> func) throws CommandSyntaxException
     {
         Minecraft.getInstance().execute(() -> {
-            try
+            long ms = Util.milliTime();
+            int r = func.apply(source);
+            if (r == 0)
             {
-                long ms = Util.milliTime();
-                Pattern p = Pattern.compile(pattern);
-                int r = ExportUtils.exportMods(p);
-                if (r == 0)
-                {
-                    source.sendErrorMessage(new StringTextComponent("未发现匹配的条目"));
-                }
-                else
-                {
-                    source.sendFeedback(new StringTextComponent(String.format("导出完毕。耗时%ss", (Util.milliTime() - ms) / 1000f)), true);
-                    source.sendFeedback(new StringTextComponent(String.format("成功导出%d条数据", r)), true);
-                }
+                source.sendErrorMessage(new StringTextComponent("未发现匹配的条目"));
             }
-            catch (PatternSyntaxException e)
+            else
             {
-                source.sendErrorMessage(new StringTextComponent("模式器解析失败"));
-            }
-            catch (IOException e)
-            {
-                source.sendErrorMessage(new StringTextComponent("文件创建失败"));
+                source.sendFeedback(new StringTextComponent(String.format("导出完毕。耗时%ss", (Util.milliTime() - ms) / 1000f)), true);
+                source.sendFeedback(new StringTextComponent(String.format("成功导出%d条数据", r)), true);
             }
         });
         return 0;
