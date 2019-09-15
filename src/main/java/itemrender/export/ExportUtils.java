@@ -113,36 +113,40 @@ public class ExportUtils
 
         boolean standard = ItemRender.format == ExportFormat.STANDARD;
 
-        for (ItemStack itemStack : ItemRender.itemList.getItems())
-        {
-            if (itemStack == null)
-                continue;
-            Matcher matcher = pattern.matcher(itemStack.getItem().getRegistryName().toString());
-            if (!matcher.find())
-                continue;
-
-            if (standard)
+        if (ItemRender.exportItem) {
+            for (ItemStack itemStack : ItemRender.itemList.getItems())
             {
-                itemData = new ItemDataStandard();
-            }
-            else
-            {
-                itemData = new ItemDataMCMOD();
-            }
-            itemData.setItem(itemStack);
-            itemDataList.put(getItemOwner(itemStack), itemData);
-        }
-        for (EntityEntry entity : ForgeRegistries.ENTITIES)
-        {
-            if (entity == null)
-                continue;
-            Matcher matcher = pattern.matcher(entity.getRegistryName().toString());
-            if (!matcher.find())
-                continue;
+                if (itemStack == null)
+                    continue;
+                Matcher matcher = pattern.matcher(itemStack.getItem().getRegistryName().toString());
+                if (!matcher.find())
+                    continue;
 
-            mobData = new MobData(entity);
-            mobDataList.put(getEntityOwner(entity), mobData);
-        }
+                if (standard)
+                {
+                    itemData = new ItemDataStandard();
+                }
+                else
+                {
+                    itemData = new ItemDataMCMOD();
+                }
+                itemData.setItem(itemStack);
+                itemDataList.put(getItemOwner(itemStack), itemData);
+            }
+		}
+        if (ItemRender.exportEntity) {
+            for (EntityEntry entity : ForgeRegistries.ENTITIES)
+            {
+                if (entity == null)
+                    continue;
+                Matcher matcher = pattern.matcher(entity.getRegistryName().toString());
+                if (!matcher.find())
+                    continue;
+
+                mobData = new MobData(entity);
+                mobDataList.put(getEntityOwner(entity), mobData);
+            }
+		}
 
         boolean reloadstate = ForgeModContainer.selectiveResourceReloadEnabled;
         boolean unicodeState = mc.fontRenderer.getUnicodeFlag();
@@ -185,48 +189,52 @@ public class ExportUtils
         File export;
         PrintWriter pw;
         String comma = standard ? "," : "";
-        for (String modid : itemDataList.keySet())
-        {
-            export = new File(mc.gameDir, String.format("export/" + modid + "_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
-            if (!export.getParentFile().exists())
-                export.getParentFile().mkdirs();
-            if (!export.exists())
-                export.createNewFile();
-            pw = new PrintWriter(export, "UTF-8");
-
-            boolean flag = false;
-            for (ItemData data : itemDataList.get(modid))
+        if (ItemRender.exportItem) {
+            for (String modid : itemDataList.keySet())
             {
-                if (flag)
-                {
-                    pw.println(comma);
-                }
-                flag = true;
-                pw.print(gson.toJson(data));
-            }
-            pw.close();
-        }
-        for (String modid : mobDataList.keySet())
-        {
-            export = new File(mc.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
-            if (!export.getParentFile().exists())
-                export.getParentFile().mkdirs();
-            if (!export.exists())
-                export.createNewFile();
-            pw = new PrintWriter(export, "UTF-8");
+                export = new File(mc.gameDir, String.format("export/" + modid + "_item.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+                if (!export.getParentFile().exists())
+                    export.getParentFile().mkdirs();
+                if (!export.exists())
+                    export.createNewFile();
+                pw = new PrintWriter(export, "UTF-8");
 
-            boolean flag = false;
-            for (MobData data : mobDataList.get(modid))
-            {
-                if (flag)
+                boolean flag = false;
+                for (ItemData data : itemDataList.get(modid))
                 {
-                    pw.println(comma);
+                    if (flag)
+                    {
+                        pw.println(comma);
+                    }
+                    flag = true;
+                    pw.print(gson.toJson(data));
                 }
-                flag = true;
-                pw.println(gson.toJson(data));
+                pw.close();
             }
-            pw.close();
-        }
+		}
+        if (ItemRender.exportEntity) {
+            for (String modid : mobDataList.keySet())
+            {
+                export = new File(mc.gameDir, String.format("export/" + modid + "_entity.json", modid.replaceAll("[^A-Za-z0-9()\\[\\]]", "")));
+                if (!export.getParentFile().exists())
+                    export.getParentFile().mkdirs();
+                if (!export.exists())
+                    export.createNewFile();
+                pw = new PrintWriter(export, "UTF-8");
+
+                boolean flag = false;
+                for (MobData data : mobDataList.get(modid))
+                {
+                    if (flag)
+                    {
+                        pw.println(comma);
+                    }
+                    flag = true;
+                    pw.println(gson.toJson(data));
+                }
+                pw.close();
+            }
+		}
 
         refreshLanguage(mc, lang.getLanguageCode());
         ForgeModContainer.selectiveResourceReloadEnabled = reloadstate;

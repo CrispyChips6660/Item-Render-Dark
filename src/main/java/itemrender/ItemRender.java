@@ -65,6 +65,8 @@ public class ItemRender
     public static int gridEntitySize = DEFAULT_GRID_ENTITY_SIZE;
     public static int playerSize = DEFAULT_PLAYER_SIZE;
     public static boolean debugMode = false;
+    public static boolean exportItem = true;
+    public static boolean exportEntity = true;
     public static ExportFormat format = ExportFormat.MCMODCN;
     public static IItemList itemList;
     public Logger log;
@@ -80,6 +82,8 @@ public class ItemRender
         gridEntitySize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderEntityGrid", DEFAULT_GRID_ENTITY_SIZE, I18n.format("itemrender.cfg.gridentity")).getInt();
         playerSize = cfg.get(Configuration.CATEGORY_GENERAL, "RenderPlayer", DEFAULT_PLAYER_SIZE, I18n.format("itemrender.cfg.player")).getInt();
         debugMode = cfg.get(Configuration.CATEGORY_GENERAL, "DebugMode", false, I18n.format("itemrender.cfg.debug")).getBoolean();
+        exportItem = cfg.get(Configuration.CATEGORY_GENERAL, "ExportItem", true, I18n.format("itemrender.cfg.exportItem")).getBoolean();
+        exportEntity = cfg.get(Configuration.CATEGORY_GENERAL, "ExportEntity", true, I18n.format("itemrender.cfg.exportEntity")).getBoolean();
         format = ExportFormat.parse(cfg.getString("ExportFormat", Configuration.CATEGORY_GENERAL, "mcmodcn", "Supported values: mcmodcn, standard"));
         if (cfg.hasChanged())
             cfg.save();
