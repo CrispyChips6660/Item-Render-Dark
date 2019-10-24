@@ -153,7 +153,7 @@ public class ExportUtils
         ForgeModContainer.selectiveResourceReloadEnabled = true;
 
         // Since refreshResources takes a long time, only refresh once for all the items
-        refreshLanguage(mc, "zh_CN");
+        refreshLanguage(mc, "zh_cn");
 
         for (ItemData data : itemDataList.values())
         {
@@ -170,7 +170,7 @@ public class ExportUtils
         }
 
         mc.fontRenderer.setUnicodeFlag(false);
-        refreshLanguage(mc, "en_US");
+        refreshLanguage(mc, "en_us");
 
         for (ItemData data : itemDataList.values())
         {
